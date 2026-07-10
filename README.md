@@ -23,6 +23,18 @@ La lógica de procesamiento de este software y el diseño del protocolo de anál
 
 ## Vídeo de instalación y explicación: https://youtu.be/M_hgrKpL-go
 
+## Archivo Paralelo En Drive
+
+Existe un snapshot de referencia en:
+
+```text
+/Users/ab/Library/CloudStorage/GoogleDrive-jasjabs19@gmail.com/My Drive/workspace/03_lab/01_Proyecto_Grande_App/01_analisis-conductual/01_sources/05_scripts/AutomatizacionCajaValentia
+```
+
+Ese directorio no es una copia activa ni un worktree confiable. Este repositorio
+es la referencia de código; cualquier hallazgo del snapshot debe revisarse e
+incorporarse aquí como un cambio puntual.
+
 ## 🛠️ Requisitos e Instalación
 
 El sistema requiere **Python 3.10 o superior** y las siguientes dependencias:
@@ -32,3 +44,4 @@ pip install pandas matplotlib scipy openpyxl customtkinter Pillow
 
 o se puede descargar el .exe ubicado en el Release del repositorio. Si se trabaja en Windows, se recomienda instalar situar todo el repositorio directamente sobre el disco C: (el .exe)
 correrá sin hacerlo, pero de esta forma se tendrá acceso al logo del laboratorio y los scripts que componen el código del programa, así como la documentación.
+```
