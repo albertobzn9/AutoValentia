@@ -41,7 +41,7 @@ El sistema requiere **Python 3.10 o superior** y las siguientes dependencias:
 
 ```bash
 pip install pandas matplotlib scipy openpyxl customtkinter Pillow
+```
 
 o se puede descargar el .exe ubicado en el Release del repositorio. Si se trabaja en Windows, se recomienda instalar situar todo el repositorio directamente sobre el disco C: (el .exe)
 correrá sin hacerlo, pero de esta forma se tendrá acceso al logo del laboratorio y los scripts que componen el código del programa, así como la documentación.
-```
