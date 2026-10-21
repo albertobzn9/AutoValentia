@@ -97,6 +97,67 @@ public partial class MainWindow : Window
         }
     }
 
+    private async void ExportReviewButton_Click(object? sender, RoutedEventArgs eventArgs)
+    {
+        if (_selectedFiles.Any(file => !file.IsReady))
+        {
+            StatusText.Text = "Revisa todas las matrices antes de crear el Excel.";
+            return;
+        }
+
+        var invalidNames = _selectedFiles
+            .Where(file => !SessionFileName.TryParse(file.Path, out _))
+            .Select(file => Path.GetFileName(file.Path))
+            .ToList();
+        if (invalidNames.Count > 0)
+        {
+            StatusText.Text = "Hay nombres que no incluyen dNúmero rNúmero.";
+            Log($"No se pudo exportar: {string.Join(", ", invalidNames)}");
+            return;
+        }
+
+        var destination = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Guardar Excel de revisión",
+            SuggestedFileName = "revision_latencias.xlsx",
+            DefaultExtension = "xlsx",
+            FileTypeChoices =
+            [
+                new FilePickerFileType("Archivo de Excel") { Patterns = ["*.xlsx"] }
+            ],
+            ShowOverwritePrompt = true
+        });
+        if (destination is null)
+        {
+            return;
+        }
+
+        var path = destination.TryGetLocalPath();
+        if (path is null)
+        {
+            StatusText.Text = "No se pudo obtener una ubicación local para guardar el Excel.";
+            return;
+        }
+
+        ExportReviewButton.IsEnabled = false;
+        StatusText.Text = "Creando Excel de revisión…";
+        try
+        {
+            var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
+            StatusText.Text = $"Excel creado: {result.DayCount} día(s), {result.RatCount} rata(s).";
+            Log($"Excel de revisión guardado en {path}");
+        }
+        catch (Exception exception)
+        {
+            StatusText.Text = $"No se pudo crear el Excel: {exception.Message}";
+            Log(StatusText.Text);
+        }
+        finally
+        {
+            UpdateButtons();
+        }
+    }
+
     private void MoveSelectedFile(int offset)
     {
         var sourceIndex = FilesListBox.SelectedIndex;
@@ -128,6 +189,7 @@ public partial class MainWindow : Window
         MoveUpButton.IsEnabled = selectedIndex > 0;
         MoveDownButton.IsEnabled = selectedIndex >= 0 && selectedIndex < _selectedFiles.Count - 1;
         ReviewMatricesButton.IsEnabled = _selectedFiles.Count > 0;
+        ExportReviewButton.IsEnabled = _selectedFiles.Count > 0 && _selectedFiles.All(file => file.IsReady);
     }
 
     private void Log(string message)
