@@ -181,3 +181,9 @@ cython_debug/
 .cursorindexingignore
 
 .DS_Store
+
+# .NET / Avalonia
+[Bb]in/
+[Oo]bj/
+artifacts/
+.vs/

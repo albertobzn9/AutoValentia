@@ -1,4 +1,10 @@
-# Caja Valentía Automatizador
+# AutoValentia
+
+Aplicación de escritorio multiplataforma para preparar y analizar ensayos conductuales de Caja Valentía.
+
+La migración de Python a **.NET 10 + Avalonia UI** está en curso. La base de Avalonia ya permite seleccionar, ordenar y retirar archivos `.mat` en macOS y Windows. La siguiente etapa incorporará la normalización de matrices de 9 a 8 columnas y la exportación del Excel de revisión por día.
+
+La implementación original en Python permanece en `Scripts/` como referencia funcional durante la migración.
 
 **Caja Valentía** es una herramienta de automatización desarrollada para optimizar el flujo de trabajo en laboratorios de neurociencias (específicamente para el IFC de la UNAM). El software procesa archivos de datos crudos (`.mat`) provenientes de ensayos conductuales, automatizando la limpieza de datos, el cálculo de latencias y la generación de reportes estadísticos visuales y tabulares.
 

@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AutoValentia.MainWindow"
+        Title="AutoValentia"
+        Icon="/Scripts/ifc_logo.ico"
+        Width="980"
+        Height="700"
+        MinWidth="720"
+        MinHeight="540"
+        WindowStartupLocation="CenterScreen">
+  <Grid Margin="28" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="18">
+    <StackPanel Spacing="5">
+      <TextBlock FontSize="30" FontWeight="SemiBold" Text="AutoValentia" />
+      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Text="Preparación y revisión de ensayos conductuales." />
+    </StackPanel>
+
+    <Border Grid.Row="1"
+            Padding="16"
+            Background="{DynamicResource SystemControlHighlightAltLowBrush}"
+            BorderBrush="{DynamicResource SystemControlHighlightAltAccentBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+      <StackPanel Spacing="6">
+        <TextBlock FontWeight="SemiBold" Text="1. Selecciona los archivos MATLAB" />
+        <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                   Text="Esta primera versión prepara la base multiplataforma. El análisis y el Excel por día se incorporarán en el siguiente paso." />
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="14">
+      <Border Padding="12" BorderBrush="{DynamicResource SystemControlOutlineBaseLowBrush}" BorderThickness="1" CornerRadius="8">
+        <ListBox x:Name="FilesListBox"
+                 SelectionChanged="FilesListBox_SelectionChanged">
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="10,7" />
+            </Style>
+          </ListBox.Styles>
+        </ListBox>
+      </Border>
+
+      <StackPanel Grid.Column="1" Spacing="9" VerticalAlignment="Top">
+        <Button MinWidth="180" Click="SelectFilesButton_Click" Content="Seleccionar .mat…" />
+        <Button x:Name="MoveUpButton" MinWidth="180" Click="MoveUpButton_Click" Content="Subir" />
+        <Button x:Name="MoveDownButton" MinWidth="180" Click="MoveDownButton_Click" Content="Bajar" />
+        <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Quitar de la lista" />
+      </StackPanel>
+    </Grid>
+
+    <Grid Grid.Row="3" RowDefinitions="Auto,Auto" RowSpacing="8">
+      <TextBlock x:Name="StatusText"
+                 FontWeight="SemiBold"
+                 TextWrapping="Wrap" />
+      <TextBox x:Name="LogTextBox"
+               Grid.Row="1"
+               Height="110"
+               IsReadOnly="True"
+               AcceptsReturn="True"
+               TextWrapping="Wrap"
+               ScrollViewer.VerticalScrollBarVisibility="Auto" />
+    </Grid>
+  </Grid>
+</Window>
