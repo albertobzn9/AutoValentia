@@ -24,7 +24,7 @@
       <StackPanel Spacing="6">
         <TextBlock FontWeight="SemiBold" Text="1. Selecciona los archivos MATLAB" />
         <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                   Text="Esta primera versión prepara la base multiplataforma. El análisis y el Excel por día se incorporarán en el siguiente paso." />
+                   Text="La app reconoce matrices Resultados de 8 o 9 columnas. Por ahora sólo las revisa y normaliza en memoria; el Excel por día será el siguiente paso." />
       </StackPanel>
     </Border>
 
@@ -45,6 +45,7 @@
         <Button x:Name="MoveUpButton" MinWidth="180" Click="MoveUpButton_Click" Content="Subir" />
         <Button x:Name="MoveDownButton" MinWidth="180" Click="MoveDownButton_Click" Content="Bajar" />
         <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Quitar de la lista" />
+        <Button x:Name="ReviewMatricesButton" MinWidth="180" Click="ReviewMatricesButton_Click" Content="Revisar matrices" />
       </StackPanel>
     </Grid>
 

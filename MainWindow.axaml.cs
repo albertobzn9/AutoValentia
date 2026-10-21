@@ -6,7 +6,7 @@ namespace AutoValentia;
 
 public partial class MainWindow : Window
 {
-    private readonly List<string> _selectedFiles = [];
+    private readonly List<PreparedMatFile> _selectedFiles = [];
 
     public MainWindow()
     {
@@ -32,12 +32,13 @@ public partial class MainWindow : Window
         foreach (var file in files)
         {
             var localPath = file.TryGetLocalPath();
-            if (localPath is null || _selectedFiles.Contains(localPath, StringComparer.OrdinalIgnoreCase))
+            if (localPath is null || _selectedFiles.Any(file =>
+                    string.Equals(file.Path, localPath, StringComparison.OrdinalIgnoreCase)))
             {
                 continue;
             }
 
-            _selectedFiles.Add(localPath);
+            _selectedFiles.Add(new PreparedMatFile(localPath));
             added++;
         }
 
@@ -60,13 +61,41 @@ public partial class MainWindow : Window
             return;
         }
 
-        var name = Path.GetFileName(_selectedFiles[selectedIndex]);
+        var name = Path.GetFileName(_selectedFiles[selectedIndex].Path);
         _selectedFiles.RemoveAt(selectedIndex);
         RefreshFiles(Math.Min(selectedIndex, _selectedFiles.Count - 1));
         Log($"Se quitó {name} de la lista.");
     }
 
     private void FilesListBox_SelectionChanged(object? sender, SelectionChangedEventArgs eventArgs) => UpdateButtons();
+
+    private async void ReviewMatricesButton_Click(object? sender, RoutedEventArgs eventArgs)
+    {
+        if (_selectedFiles.Count == 0)
+        {
+            return;
+        }
+
+        ReviewMatricesButton.IsEnabled = false;
+        StatusText.Text = "Revisando matrices…";
+        var reviewedFiles = await Task.Run(() => _selectedFiles
+            .Select(file => MatFileReader.ReadAndNormalize(file.Path))
+            .ToList());
+
+        _selectedFiles.Clear();
+        _selectedFiles.AddRange(reviewedFiles);
+        RefreshFiles();
+
+        var validCount = _selectedFiles.Count(file => file.IsReady);
+        var convertedCount = _selectedFiles.Count(file => file.SourceColumnCount == 9 && file.IsReady);
+        var errorCount = _selectedFiles.Count - validCount;
+        StatusText.Text = $"{validCount} matriz(ces) preparada(s); {convertedCount} convertida(s) de 9 a 8 columnas; {errorCount} con error.";
+
+        foreach (var file in _selectedFiles)
+        {
+            Log(file.ToString());
+        }
+    }
 
     private void MoveSelectedFile(int offset)
     {
@@ -84,7 +113,7 @@ public partial class MainWindow : Window
 
     private void RefreshFiles(int selectedIndex = -1)
     {
-        FilesListBox.ItemsSource = _selectedFiles.Select(Path.GetFileName).ToList();
+        FilesListBox.ItemsSource = _selectedFiles.Select(file => file.ToString()).ToList();
         FilesListBox.SelectedIndex = selectedIndex;
         StatusText.Text = _selectedFiles.Count == 0
             ? "Aún no hay archivos seleccionados."
@@ -98,6 +127,7 @@ public partial class MainWindow : Window
         RemoveButton.IsEnabled = selectedIndex >= 0;
         MoveUpButton.IsEnabled = selectedIndex > 0;
         MoveDownButton.IsEnabled = selectedIndex >= 0 && selectedIndex < _selectedFiles.Count - 1;
+        ReviewMatricesButton.IsEnabled = _selectedFiles.Count > 0;
     }
 
     private void Log(string message)
