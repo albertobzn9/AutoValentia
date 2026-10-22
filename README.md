@@ -6,6 +6,14 @@ La aplicación está desarrollada en **.NET 10 + Avalonia UI** para macOS y Wind
 
 La implementación original en Python permanece en `Scripts/` como referencia funcional durante la migración.
 
+## Estado de la reescritura
+
+Este proyecto se está reescribiendo activamente de Python a **.NET + Avalonia UI** para contar con una aplicación de escritorio multiplataforma.
+
+Ya está listo el flujo de revisión: carga automática de archivos `.mat`, preparación de matrices, división de latencias en tercios y generación del Excel de revisión por día y rata.
+
+La siguiente etapa pendiente es la generación de gráficas a partir de los datos y días seleccionados. La definición de esas gráficas se incorporará después de validar el flujo de selección experimental.
+
 **Caja Valentía** es una herramienta de automatización desarrollada para optimizar el flujo de trabajo en laboratorios de neurociencias (específicamente para el IFC de la UNAM). El software procesa archivos de datos crudos (`.mat`) provenientes de ensayos conductuales, automatizando la limpieza de datos, el cálculo de latencias y la generación de reportes estadísticos visuales y tabulares.
 
 Esta herramienta fue diseñada específicamente para trabajar con **Pruebas de Conflicto**, permitiendo a los investigadores centrarse en la interpretación de resultados en lugar del procesamiento manual de datos.
@@ -14,7 +22,7 @@ Esta herramienta fue diseñada específicamente para trabajar con **Pruebas de C
 
 * **Procesamiento Automatizado:** Lectura y preparación directa de archivos `.mat` de MATLAB.
 * **Análisis por Bloques (Tercios):** División automática de sesiones experimentales en tres bloques para el análisis de tendencias intra-sesión (aprendizaje, fatiga, conflicto).
-* **Visualización Científica:** Generación de gráficas inter-rata con barras de error (SEM).
+* **Visualización Científica:** Pendiente en la reescritura de Avalonia. Se agregará después de definir las gráficas y los datos seleccionados para el análisis.
 * **Exportación Consolidada:** Creación de reportes en Excel (`.xlsx`) con hojas de resumen, promedios por rata y desglose detallado de cada ensayo.
 * **Interfaz de Usuario:** Aplicación de escritorio construida con Avalonia UI para macOS y Windows.
 
