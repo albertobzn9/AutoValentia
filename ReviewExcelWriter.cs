@@ -104,18 +104,8 @@ internal static class ReviewExcelWriter
 
         var safeColumn = startColumn + MatrixColumnCount;
         var riskColumn = safeColumn + 1;
-        for (var row = 0; row < Math.Max(review.SafeLatencies.Count, review.RiskLatencies.Count); row++)
-        {
-            if (row < review.SafeLatencies.Count)
-            {
-                WriteNumber(worksheet.Cell(FirstDataRow + row, safeColumn), review.SafeLatencies[row]);
-            }
-
-            if (row < review.RiskLatencies.Count)
-            {
-                WriteNumber(worksheet.Cell(FirstDataRow + row, riskColumn), review.RiskLatencies[row]);
-            }
-        }
+        WriteBlockDetails(worksheet, safeColumn, review.Blocks, block => block.Safe, block => block.SafeAverage);
+        WriteBlockDetails(worksheet, riskColumn, review.Blocks, block => block.Risk, block => block.RiskAverage);
 
         var safeAverageColumn = riskColumn + 1;
         var riskAverageColumn = riskColumn + 2;
@@ -126,9 +116,37 @@ internal static class ReviewExcelWriter
         }
     }
 
+    private static void WriteBlockDetails(
+        IXLWorksheet worksheet,
+        int column,
+        IReadOnlyList<LatencyBlock> blocks,
+        Func<LatencyBlock, IReadOnlyList<double>> valuesSelector,
+        Func<LatencyBlock, double?> averageSelector)
+    {
+        var row = FirstDataRow;
+        for (var blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+        {
+            foreach (var value in valuesSelector(blocks[blockIndex]))
+            {
+                WriteNumber(worksheet.Cell(row, column), value);
+                row++;
+            }
+
+            WriteAverage(worksheet.Cell(row, column), averageSelector(blocks[blockIndex]), bold: true);
+            row++;
+
+            // The empty row is the visual separation between adjacent thirds.
+            if (blockIndex < blocks.Count - 1)
+            {
+                row++;
+            }
+        }
+    }
+
     private static void WriteNumber(IXLCell cell, double value)
     {
         cell.Value = value;
+        cell.Style.NumberFormat.Format = "0.00";
     }
 
     private static void WriteAverage(IXLCell cell, double? value, bool bold)

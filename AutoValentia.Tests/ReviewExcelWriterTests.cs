@@ -30,6 +30,7 @@ public sealed class ReviewExcelWriterTests
             Assert.Equal("d2r1", summary.Cell("C2").GetString());
             Assert.Equal("d1r2", summary.Cell("A6").GetString());
             Assert.False(summary.Cell("A3").Style.Font.Bold);
+            Assert.Equal("0.00", summary.Cell("A3").Style.NumberFormat.Format);
 
             var dayOne = workbook.Worksheet("d1");
             Assert.Equal("d1r1", dayOne.Cell("A2").GetString());
@@ -37,6 +38,31 @@ public sealed class ReviewExcelWriterTests
             Assert.True(dayOne.Cell("K3").Style.Font.Bold);
             Assert.True(dayOne.Cell("L3").Style.Font.Bold);
             Assert.False(dayOne.Cell("A2").Style.Font.Bold);
+
+            // Each condition uses its own vertical thirds: values, bold average, then a blank row.
+            Assert.Equal(1d, dayOne.Cell("I3").GetDouble());
+            Assert.Equal("0.00", dayOne.Cell("I3").Style.NumberFormat.Format);
+            Assert.Equal(2d, dayOne.Cell("I4").GetDouble());
+            Assert.Equal(1.5d, dayOne.Cell("I5").GetDouble());
+            Assert.True(dayOne.Cell("I5").Style.Font.Bold);
+            Assert.True(dayOne.Cell("I6").IsEmpty());
+            Assert.Equal(3d, dayOne.Cell("I7").GetDouble());
+            Assert.Equal(3.5d, dayOne.Cell("I9").GetDouble());
+            Assert.True(dayOne.Cell("I9").Style.Font.Bold);
+
+            Assert.Equal(10d, dayOne.Cell("J3").GetDouble());
+            Assert.Equal(10d, dayOne.Cell("J4").GetDouble());
+            Assert.True(dayOne.Cell("J4").Style.Font.Bold);
+            Assert.True(dayOne.Cell("J5").IsEmpty());
+            Assert.Equal(20d, dayOne.Cell("J6").GetDouble());
+            Assert.Equal(20d, dayOne.Cell("J7").GetDouble());
+            Assert.True(dayOne.Cell("J7").Style.Font.Bold);
+            Assert.True(dayOne.Cell("J8").IsEmpty());
+            Assert.Equal("n/a", dayOne.Cell("J9").GetString());
+            Assert.True(dayOne.Cell("J9").Style.Font.Bold);
+
+            Assert.Equal("n/a", dayOne.Cell("V3").GetString());
+            Assert.True(dayOne.Cell("V3").Style.Font.Bold);
             Assert.Equal("n/a", dayOne.Cell("X3").GetString());
             Assert.True(dayOne.Cell("X3").Style.Font.Bold);
         }
