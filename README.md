@@ -2,7 +2,7 @@
 
 Aplicación de escritorio multiplataforma para preparar y analizar ensayos conductuales de Caja Valentía.
 
-La migración de Python a **.NET 10 + Avalonia UI** está en curso. La base de Avalonia ya permite seleccionar, ordenar y retirar archivos `.mat` en macOS y Windows. La siguiente etapa incorporará la normalización de matrices de 9 a 8 columnas y la exportación del Excel de revisión por día.
+La aplicación está desarrollada en **.NET 10 + Avalonia UI** para macOS y Windows. Permite seleccionar archivos `.mat`, prepararlos automáticamente y exportar un Excel de revisión ordenado por día y rata.
 
 La implementación original en Python permanece en `Scripts/` como referencia funcional durante la migración.
 
@@ -12,11 +12,11 @@ Esta herramienta fue diseñada específicamente para trabajar con **Pruebas de C
 
 ## Características Principales
 
-* **Procesamiento Automatizado:** Lectura directa de archivos `.mat` de MATLAB y conversión a estructuras de datos de Pandas.
+* **Procesamiento Automatizado:** Lectura y preparación directa de archivos `.mat` de MATLAB.
 * **Análisis por Bloques (Tercios):** División automática de sesiones experimentales en tres bloques para el análisis de tendencias intra-sesión (aprendizaje, fatiga, conflicto).
 * **Visualización Científica:** Generación de gráficas inter-rata con barras de error (SEM).
 * **Exportación Consolidada:** Creación de reportes en Excel (`.xlsx`) con hojas de resumen, promedios por rata y desglose detallado de cada ensayo.
-* **Interfaz de Usuario:** UI intuitiva construida con `CustomTkinter`, que incluye una consola de logs en tiempo real y un fondo animado de red neuronal.
+* **Interfaz de Usuario:** Aplicación de escritorio construida con Avalonia UI para macOS y Windows.
 
 ## Metodología
 
@@ -43,11 +43,10 @@ incorporarse aquí como un cambio puntual.
 
 ## 🛠️ Requisitos e Instalación
 
-El sistema requiere **Python 3.10 o superior** y las siguientes dependencias:
+Para ejecutar el código desde el repositorio se necesita el SDK de **.NET 10**. Desde la carpeta del proyecto:
 
 ```bash
-pip install pandas matplotlib scipy openpyxl customtkinter Pillow
+dotnet run
 ```
 
-o se puede descargar el .exe ubicado en el Release del repositorio. Si se trabaja en Windows, se recomienda instalar situar todo el repositorio directamente sobre el disco C: (el .exe)
-correrá sin hacerlo, pero de esta forma se tendrá acceso al logo del laboratorio y los scripts que componen el código del programa, así como la documentación.
+Las versiones empaquetadas para usuarios finales se descargarán desde la sección Releases del repositorio.

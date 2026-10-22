@@ -22,13 +22,10 @@ internal sealed record PreparedMatFile(
 
         if (Matrix is null)
         {
-            return $"○  {name} — pendiente de revisar";
+            return $"○  {name} — pendiente";
         }
 
-        var conversion = SourceColumnCount == 9
-            ? $"9 → 8 columnas; {RemovedRows} fila(s) descartada(s)"
-            : "8 columnas";
-        return $"✓  {name} — {Matrix.RowCount} filas; {conversion}";
+        return $"✓  {name} — {Matrix.RowCount} filas preparadas";
     }
 }
 
@@ -58,7 +55,7 @@ internal static class MatFileReader
                 9 => NormalizeNineColumnMatrix(path, source),
                 _ => new PreparedMatFile(
                     path,
-                    Error: $"Tiene {source.ColumnCount} columnas; se esperan 8 o 9.")
+                    Error: "El archivo no tiene un formato compatible.")
             };
         }
         catch (Exception exception)

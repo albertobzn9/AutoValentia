@@ -24,7 +24,7 @@
       <StackPanel Spacing="6">
         <TextBlock FontWeight="SemiBold" Text="1. Selecciona los archivos MATLAB" />
         <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                   Text="La app reconoce matrices Resultados de 8 o 9 columnas. Por ahora sólo las revisa y normaliza en memoria; el Excel por día será el siguiente paso." />
+                   Text="La app prepara automáticamente los archivos seleccionados para crear el Excel de revisión." />
       </StackPanel>
     </Border>
 
@@ -41,26 +41,16 @@
       </Border>
 
       <StackPanel Grid.Column="1" Spacing="9" VerticalAlignment="Top">
-        <Button MinWidth="180" Click="SelectFilesButton_Click" Content="Seleccionar .mat…" />
-        <Button x:Name="MoveUpButton" MinWidth="180" Click="MoveUpButton_Click" Content="Subir" />
-        <Button x:Name="MoveDownButton" MinWidth="180" Click="MoveDownButton_Click" Content="Bajar" />
+        <Button x:Name="SelectFilesButton" MinWidth="180" Click="SelectFilesButton_Click" Content="Seleccionar .mat…" />
         <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Quitar de la lista" />
-        <Button x:Name="ReviewMatricesButton" MinWidth="180" Click="ReviewMatricesButton_Click" Content="Revisar matrices" />
         <Button x:Name="ExportReviewButton" MinWidth="180" Click="ExportReviewButton_Click" Content="Crear Excel de revisión…" />
       </StackPanel>
     </Grid>
 
-    <Grid Grid.Row="3" RowDefinitions="Auto,Auto" RowSpacing="8">
+    <Grid Grid.Row="3">
       <TextBlock x:Name="StatusText"
                  FontWeight="SemiBold"
                  TextWrapping="Wrap" />
-      <TextBox x:Name="LogTextBox"
-               Grid.Row="1"
-               Height="110"
-               IsReadOnly="True"
-               AcceptsReturn="True"
-               TextWrapping="Wrap"
-               ScrollViewer.VerticalScrollBarVisibility="Auto" />
     </Grid>
   </Grid>
 </Window>

@@ -98,7 +98,7 @@ internal static class ReviewExcelWriter
         {
             for (var column = 0; column < MatrixColumnCount; column++)
             {
-                WriteNumber(worksheet.Cell(FirstDataRow + row, startColumn + column), matrix[row, column]);
+                WriteMatrixNumber(worksheet.Cell(FirstDataRow + row, startColumn + column), matrix[row, column]);
             }
         }
 
@@ -147,6 +147,12 @@ internal static class ReviewExcelWriter
     {
         cell.Value = value;
         cell.Style.NumberFormat.Format = "0.00";
+    }
+
+    private static void WriteMatrixNumber(IXLCell cell, double value)
+    {
+        cell.Value = value;
+        cell.Style.NumberFormat.Format = value == Math.Truncate(value) ? "0" : "0.00";
     }
 
     private static void WriteAverage(IXLCell cell, double? value, bool bold)

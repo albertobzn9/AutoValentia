@@ -12,7 +12,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         StatusText.Text = "Aún no hay archivos seleccionados.";
-        Log("AutoValentia está listo. Selecciona uno o varios archivos .mat.");
         UpdateButtons();
     }
 
@@ -28,7 +27,7 @@ public partial class MainWindow : Window
             ]
         });
 
-        var added = 0;
+        var pathsToPrepare = new List<string>();
         foreach (var file in files)
         {
             var localPath = file.TryGetLocalPath();
@@ -38,20 +37,29 @@ public partial class MainWindow : Window
                 continue;
             }
 
-            _selectedFiles.Add(new PreparedMatFile(localPath));
-            added++;
+            pathsToPrepare.Add(localPath);
         }
 
-        if (added > 0)
+        if (pathsToPrepare.Count == 0)
         {
+            return;
+        }
+
+        SelectFilesButton.IsEnabled = false;
+        StatusText.Text = "Preparando matrices…";
+        try
+        {
+            var preparedFiles = await Task.Run(() => pathsToPrepare
+                .Select(MatFileReader.ReadAndNormalize)
+                .ToList());
+            _selectedFiles.AddRange(preparedFiles);
             RefreshFiles();
-            Log($"Se añadieron {added} archivo(s) .mat.");
+        }
+        finally
+        {
+            UpdateButtons();
         }
     }
-
-    private void MoveUpButton_Click(object? sender, RoutedEventArgs eventArgs) => MoveSelectedFile(-1);
-
-    private void MoveDownButton_Click(object? sender, RoutedEventArgs eventArgs) => MoveSelectedFile(1);
 
     private void RemoveButton_Click(object? sender, RoutedEventArgs eventArgs)
     {
@@ -61,47 +69,17 @@ public partial class MainWindow : Window
             return;
         }
 
-        var name = Path.GetFileName(_selectedFiles[selectedIndex].Path);
         _selectedFiles.RemoveAt(selectedIndex);
         RefreshFiles(Math.Min(selectedIndex, _selectedFiles.Count - 1));
-        Log($"Se quitó {name} de la lista.");
     }
 
     private void FilesListBox_SelectionChanged(object? sender, SelectionChangedEventArgs eventArgs) => UpdateButtons();
-
-    private async void ReviewMatricesButton_Click(object? sender, RoutedEventArgs eventArgs)
-    {
-        if (_selectedFiles.Count == 0)
-        {
-            return;
-        }
-
-        ReviewMatricesButton.IsEnabled = false;
-        StatusText.Text = "Revisando matrices…";
-        var reviewedFiles = await Task.Run(() => _selectedFiles
-            .Select(file => MatFileReader.ReadAndNormalize(file.Path))
-            .ToList());
-
-        _selectedFiles.Clear();
-        _selectedFiles.AddRange(reviewedFiles);
-        RefreshFiles();
-
-        var validCount = _selectedFiles.Count(file => file.IsReady);
-        var convertedCount = _selectedFiles.Count(file => file.SourceColumnCount == 9 && file.IsReady);
-        var errorCount = _selectedFiles.Count - validCount;
-        StatusText.Text = $"{validCount} matriz(ces) preparada(s); {convertedCount} convertida(s) de 9 a 8 columnas; {errorCount} con error.";
-
-        foreach (var file in _selectedFiles)
-        {
-            Log(file.ToString());
-        }
-    }
 
     private async void ExportReviewButton_Click(object? sender, RoutedEventArgs eventArgs)
     {
         if (_selectedFiles.Any(file => !file.IsReady))
         {
-            StatusText.Text = "Revisa todas las matrices antes de crear el Excel.";
+            StatusText.Text = "Hay archivos con error. Quítalos de la lista antes de crear el Excel.";
             return;
         }
 
@@ -112,7 +90,6 @@ public partial class MainWindow : Window
         if (invalidNames.Count > 0)
         {
             StatusText.Text = "Hay nombres que no incluyen dNúmero rNúmero.";
-            Log($"No se pudo exportar: {string.Join(", ", invalidNames)}");
             return;
         }
 
@@ -145,12 +122,10 @@ public partial class MainWindow : Window
         {
             var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
             StatusText.Text = $"Excel creado: {result.DayCount} día(s), {result.RatCount} rata(s).";
-            Log($"Excel de revisión guardado en {path}");
         }
         catch (Exception exception)
         {
             StatusText.Text = $"No se pudo crear el Excel: {exception.Message}";
-            Log(StatusText.Text);
         }
         finally
         {
@@ -158,43 +133,25 @@ public partial class MainWindow : Window
         }
     }
 
-    private void MoveSelectedFile(int offset)
-    {
-        var sourceIndex = FilesListBox.SelectedIndex;
-        var destinationIndex = sourceIndex + offset;
-        if (sourceIndex < 0 || destinationIndex < 0 || destinationIndex >= _selectedFiles.Count)
-        {
-            return;
-        }
-
-        (_selectedFiles[sourceIndex], _selectedFiles[destinationIndex]) =
-            (_selectedFiles[destinationIndex], _selectedFiles[sourceIndex]);
-        RefreshFiles(destinationIndex);
-    }
-
     private void RefreshFiles(int selectedIndex = -1)
     {
         FilesListBox.ItemsSource = _selectedFiles.Select(file => file.ToString()).ToList();
         FilesListBox.SelectedIndex = selectedIndex;
+        var readyCount = _selectedFiles.Count(file => file.IsReady);
+        var errorCount = _selectedFiles.Count - readyCount;
         StatusText.Text = _selectedFiles.Count == 0
             ? "Aún no hay archivos seleccionados."
-            : $"{_selectedFiles.Count} archivo(s) .mat listos para preparar.";
+            : errorCount == 0
+                ? $"{readyCount} archivo(s) preparado(s) y listo(s) para el Excel."
+                : $"{readyCount} archivo(s) preparado(s); {errorCount} con error.";
         UpdateButtons();
     }
 
     private void UpdateButtons()
     {
         var selectedIndex = FilesListBox.SelectedIndex;
+        SelectFilesButton.IsEnabled = true;
         RemoveButton.IsEnabled = selectedIndex >= 0;
-        MoveUpButton.IsEnabled = selectedIndex > 0;
-        MoveDownButton.IsEnabled = selectedIndex >= 0 && selectedIndex < _selectedFiles.Count - 1;
-        ReviewMatricesButton.IsEnabled = _selectedFiles.Count > 0;
         ExportReviewButton.IsEnabled = _selectedFiles.Count > 0 && _selectedFiles.All(file => file.IsReady);
-    }
-
-    private void Log(string message)
-    {
-        LogTextBox.Text += $"{DateTime.Now:HH:mm:ss}  {message}{Environment.NewLine}";
-        LogTextBox.CaretIndex = LogTextBox.Text?.Length ?? 0;
     }
 }

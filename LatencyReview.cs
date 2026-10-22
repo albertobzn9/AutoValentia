@@ -4,9 +4,9 @@ namespace AutoValentia;
 
 internal sealed record LatencyBlock(IReadOnlyList<double> Safe, IReadOnlyList<double> Risk)
 {
-    public double? SafeAverage => Safe.Count == 0 ? null : Safe.Average();
+    public double? SafeAverage => Safe.Count == 0 ? null : Math.Round(Safe.Average(), 2, MidpointRounding.AwayFromZero);
 
-    public double? RiskAverage => Risk.Count == 0 ? null : Risk.Average();
+    public double? RiskAverage => Risk.Count == 0 ? null : Math.Round(Risk.Average(), 2, MidpointRounding.AwayFromZero);
 }
 
 internal sealed record RatLatencyReview(

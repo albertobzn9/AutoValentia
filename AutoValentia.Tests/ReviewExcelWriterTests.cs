@@ -14,7 +14,7 @@ public sealed class ReviewExcelWriterTests
         {
             var files = new[]
             {
-                CreateFile("exp_0526_dis_d1r1.mat", (0, 1d), (0, 2d), (0, 3d), (0, 4d), (0, 5d), (1, 10d), (1, 20d)),
+                CreateFile("exp_0526_dis_d1r1.mat", (0, 1.5d), (0, 2d), (0, 3d), (0, 4d), (0, 5d), (1, 10d), (1, 20d)),
                 CreateFile("exp_0526_dis_d1r2.mat", (0, 6d), (0, 7d), (0, 8d)),
                 CreateFile("exp_0526_dis_d2r1.mat", (0, 9d), (1, 30d), (1, 40d), (1, 50d))
             };
@@ -38,12 +38,14 @@ public sealed class ReviewExcelWriterTests
             Assert.True(dayOne.Cell("K3").Style.Font.Bold);
             Assert.True(dayOne.Cell("L3").Style.Font.Bold);
             Assert.False(dayOne.Cell("A2").Style.Font.Bold);
+            Assert.Equal("0", dayOne.Cell("A3").Style.NumberFormat.Format);
+            Assert.Equal("0.00", dayOne.Cell("D3").Style.NumberFormat.Format);
 
             // Each condition uses its own vertical thirds: values, bold average, then a blank row.
-            Assert.Equal(1d, dayOne.Cell("I3").GetDouble());
+            Assert.Equal(1.5d, dayOne.Cell("I3").GetDouble());
             Assert.Equal("0.00", dayOne.Cell("I3").Style.NumberFormat.Format);
             Assert.Equal(2d, dayOne.Cell("I4").GetDouble());
-            Assert.Equal(1.5d, dayOne.Cell("I5").GetDouble());
+            Assert.Equal(1.75d, dayOne.Cell("I5").GetDouble());
             Assert.True(dayOne.Cell("I5").Style.Font.Bold);
             Assert.True(dayOne.Cell("I6").IsEmpty());
             Assert.Equal(3d, dayOne.Cell("I7").GetDouble());
@@ -73,6 +75,26 @@ public sealed class ReviewExcelWriterTests
                 File.Delete(outputPath);
             }
         }
+    }
+
+    [Fact]
+    public void PreparedMatFile_ready_description_hides_the_internal_normalization_details()
+    {
+        var matrix = Matrix<double>.Build.Dense(2, 8);
+        var preparedFile = new PreparedMatFile("exp_0526_dis_d1r1.mat", matrix, SourceColumnCount: 9, RemovedRows: 2);
+
+        Assert.DoesNotContain("columna", preparedFile.ToString(), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("9", preparedFile.ToString());
+        Assert.Equal("✓  exp_0526_dis_d1r1.mat — 2 filas preparadas", preparedFile.ToString());
+    }
+
+    [Fact]
+    public void Processing_preserves_latency_values_and_rounds_the_final_block_average()
+    {
+        var block = new LatencyBlock(new[] { 1.234d, 2.344d }, []);
+
+        Assert.Equal(1.234d, block.Safe[0]);
+        Assert.Equal(1.79d, block.SafeAverage);
     }
 
     [Theory]
