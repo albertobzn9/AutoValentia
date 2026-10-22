@@ -2,7 +2,7 @@ using ClosedXML.Excel;
 
 namespace AutoValentia;
 
-internal sealed record ReviewExcelResult(int DayCount, int RatCount);
+internal sealed record ReviewExcelResult(int DayCount, int RatCount, CrossingType CrossingType);
 
 internal static class ReviewExcelWriter
 {
@@ -28,25 +28,34 @@ internal static class ReviewExcelWriter
             throw new InvalidOperationException($"Hay más de un archivo identificado como {duplicate.Key.DisplayName}.");
         }
 
+        var crossingType = CrossingTypeDetector.Detect(reviews);
+
         using var workbook = new XLWorkbook();
         workbook.Style.Font.FontName = "Aptos Narrow";
         workbook.Style.Font.FontSize = 11;
-        WriteSummary(workbook, reviews);
+        WriteSummary(workbook, reviews, crossingType);
 
         foreach (var dayGroup in reviews.GroupBy(review => review.Identifier.Day).OrderBy(group => group.Key))
         {
-            WriteDaySheet(workbook, dayGroup.OrderBy(review => review.Identifier.Rat).ToList(), reviews[0]);
+            WriteDaySheet(workbook, dayGroup.OrderBy(review => review.Identifier.Rat).ToList(), reviews[0], crossingType);
         }
 
         workbook.SaveAs(path);
-        return new ReviewExcelResult(reviews.Select(review => review.Identifier.Day).Distinct().Count(), reviews.Count);
+        return new ReviewExcelResult(
+            reviews.Select(review => review.Identifier.Day).Distinct().Count(),
+            reviews.Count,
+            crossingType);
     }
 
-    private static void WriteSummary(XLWorkbook workbook, IReadOnlyList<RatLatencyReview> reviews)
+    private static void WriteSummary(
+        XLWorkbook workbook,
+        IReadOnlyList<RatLatencyReview> reviews,
+        CrossingType crossingType)
     {
         var worksheet = workbook.Worksheets.Add("Resumen");
         var title = SessionFileName.GetExperimentName(reviews[0].Source.Path);
         worksheet.Cell(1, 1).Value = title;
+        worksheet.Cell(1, 3).Value = crossingType.DisplayName();
         var days = reviews.Select(review => review.Identifier.Day).Distinct().OrderBy(day => day).ToList();
         var rats = reviews.Select(review => review.Identifier.Rat).Distinct().OrderBy(rat => rat).ToList();
         for (var ratIndex = 0; ratIndex < rats.Count; ratIndex++)
@@ -77,10 +86,12 @@ internal static class ReviewExcelWriter
     private static void WriteDaySheet(
         XLWorkbook workbook,
         IReadOnlyList<RatLatencyReview> reviews,
-        RatLatencyReview firstReview)
+        RatLatencyReview firstReview,
+        CrossingType crossingType)
     {
         var worksheet = workbook.Worksheets.Add(reviews[0].Identifier.DaySheetName);
         worksheet.Cell(1, 1).Value = SessionFileName.GetExperimentName(firstReview.Source.Path);
+        worksheet.Cell(1, 3).Value = crossingType.DisplayName();
 
         for (var index = 0; index < reviews.Count; index++)
         {

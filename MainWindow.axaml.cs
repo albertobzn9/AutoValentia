@@ -121,7 +121,7 @@ public partial class MainWindow : Window
         try
         {
             var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
-            StatusText.Text = $"Excel creado: {result.DayCount} día(s), {result.RatCount} rata(s).";
+            StatusText.Text = $"Excel creado: {result.CrossingType.DisplayName()}; {result.DayCount} día(s), {result.RatCount} rata(s).";
         }
         catch (Exception exception)
         {

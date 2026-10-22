@@ -26,6 +26,7 @@ public sealed class ReviewExcelWriterTests
 
             var summary = workbook.Worksheet("Resumen");
             Assert.Equal("exp_0526_dis", summary.Cell("A1").GetString());
+            Assert.Equal("Discriminación", summary.Cell("C1").GetString());
             Assert.Equal("d1r1", summary.Cell("A2").GetString());
             Assert.Equal("d2r1", summary.Cell("C2").GetString());
             Assert.Equal("d1r2", summary.Cell("A6").GetString());
@@ -95,6 +96,36 @@ public sealed class ReviewExcelWriterTests
 
         Assert.Equal(1.234d, block.Safe[0]);
         Assert.Equal(1.79d, block.SafeAverage);
+    }
+
+    [Fact]
+    public void Write_marks_the_safe_condition_as_not_applicable_for_danger_crossings()
+    {
+        var outputPath = Path.Combine(Path.GetTempPath(), $"autovalentia-{Guid.NewGuid():N}.xlsx");
+        try
+        {
+            var files = new[]
+            {
+                CreateFile("exp_0526_ame_d1r1.mat", (1, 10d), (1, 20d), (1, 30d), (1, 40d))
+            };
+
+            var result = ReviewExcelWriter.Write(outputPath, files);
+
+            using var workbook = new XLWorkbook(outputPath);
+            Assert.Equal(CrossingType.DangerCrossings, result.CrossingType);
+            Assert.Equal("Cruces peligrosos", workbook.Worksheet("Resumen").Cell("C1").GetString());
+            Assert.Equal("n/a", workbook.Worksheet("Resumen").Cell("A3").GetString());
+            Assert.Equal("n/a", workbook.Worksheet("d1").Cell("I3").GetString());
+            Assert.Equal("n/a", workbook.Worksheet("d1").Cell("K3").GetString());
+            Assert.Equal(10d, workbook.Worksheet("d1").Cell("J3").GetDouble());
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+        }
     }
 
     [Theory]
