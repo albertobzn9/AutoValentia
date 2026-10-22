@@ -9,8 +9,6 @@ internal static class ReviewExcelWriter
     private const int MatrixColumnCount = 8;
     private const int RatPanelWidth = 12;
     private const int FirstDataRow = 3;
-    private const string NumberFormat = "0.00";
-
     public static ReviewExcelResult Write(string path, IReadOnlyCollection<PreparedMatFile> files)
     {
         var reviews = files
@@ -31,11 +29,13 @@ internal static class ReviewExcelWriter
         }
 
         using var workbook = new XLWorkbook();
+        workbook.Style.Font.FontName = "Aptos Narrow";
+        workbook.Style.Font.FontSize = 11;
         WriteSummary(workbook, reviews);
 
         foreach (var dayGroup in reviews.GroupBy(review => review.Identifier.Day).OrderBy(group => group.Key))
         {
-            WriteDaySheet(workbook, dayGroup.Key, dayGroup.OrderBy(review => review.Identifier.Rat).ToList(), reviews[0]);
+            WriteDaySheet(workbook, dayGroup.OrderBy(review => review.Identifier.Rat).ToList(), reviews[0]);
         }
 
         workbook.SaveAs(path);
@@ -47,56 +47,51 @@ internal static class ReviewExcelWriter
         var worksheet = workbook.Worksheets.Add("Resumen");
         var title = SessionFileName.GetExperimentName(reviews[0].Source.Path);
         worksheet.Cell(1, 1).Value = title;
-        worksheet.Cell(1, 1).Style.Font.Bold = true;
-        worksheet.Cell(1, 1).Style.Font.FontSize = 14;
-
-        var orderedReviews = reviews
-            .OrderBy(review => review.Identifier.Rat)
-            .ThenBy(review => review.Identifier.Day)
-            .ToList();
-        for (var index = 0; index < orderedReviews.Count; index++)
+        var days = reviews.Select(review => review.Identifier.Day).Distinct().OrderBy(day => day).ToList();
+        var rats = reviews.Select(review => review.Identifier.Rat).Distinct().OrderBy(rat => rat).ToList();
+        for (var ratIndex = 0; ratIndex < rats.Count; ratIndex++)
         {
-            var review = orderedReviews[index];
-            var startColumn = 1 + index * 2;
-            worksheet.Cell(2, startColumn).Value = review.Identifier.DisplayName;
-            worksheet.Cell(2, startColumn).Style.Font.Bold = true;
-
-            for (var blockIndex = 0; blockIndex < 3; blockIndex++)
+            var startRow = 2 + ratIndex * 4;
+            for (var dayIndex = 0; dayIndex < days.Count; dayIndex++)
             {
-                WriteAverage(worksheet.Cell(FirstDataRow + blockIndex, startColumn), review.Blocks[blockIndex].SafeAverage);
-                WriteAverage(worksheet.Cell(FirstDataRow + blockIndex, startColumn + 1), review.Blocks[blockIndex].RiskAverage);
+                var review = reviews.SingleOrDefault(candidate =>
+                    candidate.Identifier.Day == days[dayIndex] && candidate.Identifier.Rat == rats[ratIndex]);
+                if (review is null)
+                {
+                    continue;
+                }
+
+                var startColumn = 1 + dayIndex * 2;
+                worksheet.Cell(startRow, startColumn).Value = review.Identifier.DisplayName;
+                worksheet.Cell(startRow, startColumn).Style.Font.Bold = true;
+
+                for (var blockIndex = 0; blockIndex < 3; blockIndex++)
+                {
+                    WriteAverage(worksheet.Cell(startRow + 1 + blockIndex, startColumn), review.Blocks[blockIndex].SafeAverage, bold: false);
+                    WriteAverage(worksheet.Cell(startRow + 1 + blockIndex, startColumn + 1), review.Blocks[blockIndex].RiskAverage, bold: false);
+                }
             }
-
-            worksheet.Column(startColumn).Width = 12;
-            worksheet.Column(startColumn + 1).Width = 12;
         }
-
-        worksheet.SheetView.FreezeRows(2);
     }
 
     private static void WriteDaySheet(
         XLWorkbook workbook,
-        int day,
         IReadOnlyList<RatLatencyReview> reviews,
         RatLatencyReview firstReview)
     {
-        var worksheet = workbook.Worksheets.Add($"d{day}");
+        var worksheet = workbook.Worksheets.Add(reviews[0].Identifier.DaySheetName);
         worksheet.Cell(1, 1).Value = SessionFileName.GetExperimentName(firstReview.Source.Path);
-        worksheet.Cell(1, 1).Style.Font.Bold = true;
-        worksheet.Cell(1, 1).Style.Font.FontSize = 14;
 
         for (var index = 0; index < reviews.Count; index++)
         {
             WriteRatPanel(worksheet, 1 + index * RatPanelWidth, reviews[index]);
         }
 
-        worksheet.SheetView.FreezeRows(2);
     }
 
     private static void WriteRatPanel(IXLWorksheet worksheet, int startColumn, RatLatencyReview review)
     {
         worksheet.Cell(2, startColumn).Value = review.Identifier.DisplayName;
-        worksheet.Cell(2, startColumn).Style.Font.Bold = true;
 
         var matrix = review.Source.Matrix!;
         for (var row = 0; row < matrix.RowCount; row++)
@@ -126,31 +121,26 @@ internal static class ReviewExcelWriter
         var riskAverageColumn = riskColumn + 2;
         for (var blockIndex = 0; blockIndex < 3; blockIndex++)
         {
-            WriteAverage(worksheet.Cell(FirstDataRow + blockIndex, safeAverageColumn), review.Blocks[blockIndex].SafeAverage);
-            WriteAverage(worksheet.Cell(FirstDataRow + blockIndex, riskAverageColumn), review.Blocks[blockIndex].RiskAverage);
-        }
-
-        for (var column = startColumn; column < startColumn + RatPanelWidth; column++)
-        {
-            worksheet.Column(column).Width = 11;
+            WriteAverage(worksheet.Cell(FirstDataRow + blockIndex, safeAverageColumn), review.Blocks[blockIndex].SafeAverage, bold: true);
+            WriteAverage(worksheet.Cell(FirstDataRow + blockIndex, riskAverageColumn), review.Blocks[blockIndex].RiskAverage, bold: true);
         }
     }
 
     private static void WriteNumber(IXLCell cell, double value)
     {
         cell.Value = value;
-        cell.Style.NumberFormat.Format = NumberFormat;
     }
 
-    private static void WriteAverage(IXLCell cell, double? value)
+    private static void WriteAverage(IXLCell cell, double? value, bool bold)
     {
         if (value is null)
         {
             cell.Value = "n/a";
-            cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+            cell.Style.Font.Bold = bold;
             return;
         }
 
         WriteNumber(cell, value.Value);
+        cell.Style.Font.Bold = bold;
     }
 }
