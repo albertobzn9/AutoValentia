@@ -15,6 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../AutoValentia.csproj" />
+    <ProjectReference Include="../../src/AutoValentia/AutoValentia.csproj" />
   </ItemGroup>
 </Project>

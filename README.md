@@ -6,11 +6,11 @@ It is built with .NET and Avalonia UI for macOS and Windows.
 
 ## What it does
 
-- Opens `.mat` files containing a matrix with 8 or 9 columns with raw data from the protocol .
+- Opens `.mat` files containing an 8- or 9-column matrix of raw protocol data.
 - Normalizes compatible 9-column matrices to 8 columns automatically.
 - Detects no-conflict crossings, conflict crossings, and discrimination sessions from the data.
 - Splits valid latency observations into three ordered blocks.
-- Exports an Excel workbook with a daily raw-data view, per-rat block values, block averages, and SEM.
+- Exports an Excel workbook with a daily raw-data view, per-rat block values, block averages, and standard error of the mean (SEM).
 - Creates latency plots and exports them as PNG files.
 
 ## Input requirements
@@ -27,8 +27,8 @@ This identifies day 3 and rat 4. The MATLAB file must contain a numeric matrix n
 
 Only valid crossings are included in the latency analysis. The app applies the following protocol rules:
 
-- For discrimination, the final day uses the first 7 safe crossings and the first 3 danger crossings.
-- For danger crossings, latency outliers are removed above the daily protocol limit: 45 s on days 1–2, 75 s on day 3, 105 s on day 4, and 135 s on day 5.
+- For discrimination, the final day uses the first 7 no-conflict crossings and the first 3 conflict crossings.
+- For conflict crossings, latency outliers are removed above the daily protocol limit: 45 s on days 1–2, 75 s on day 3, 105 s on day 4, and 135 s on day 5.
 - Excel and plot outputs use the same filtered data.
 
 ## Use the app
@@ -45,7 +45,7 @@ Available packages are a DMG and ZIP for macOS Apple Silicon, plus an EXE and ZI
 Install the .NET 10 SDK, then run:
 
 ```bash
-dotnet run --project AutoValentia.csproj
+dotnet run --project src/AutoValentia/AutoValentia.csproj
 ```
 
 ## Method reference

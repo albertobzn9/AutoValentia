@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AutoValentia/AutoValentia.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AutoValentia.Tests/AutoValentia.Tests.csproj" />
+  </Folder>
+</Solution>
