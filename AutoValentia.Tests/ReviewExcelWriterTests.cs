@@ -165,6 +165,36 @@ public sealed class ReviewExcelWriterTests
         }
     }
 
+    [Fact]
+    public void Write_excludes_danger_crossing_trials_after_the_protocol_time_limit()
+    {
+        var outputPath = Path.Combine(Path.GetTempPath(), $"autovalentia-{Guid.NewGuid():N}.xlsx");
+        try
+        {
+            var files = new[]
+            {
+                CreateDangerFile("exp_0526_ame_d1r1.mat", (44d, 10d), (45d, 20d), (45.01d, 999d))
+            };
+
+            ReviewExcelWriter.Write(outputPath, files);
+
+            using var workbook = new XLWorkbook(outputPath);
+            var sheet = workbook.Worksheet("d1");
+            Assert.Equal(44d, sheet.Cell("E3").GetDouble());
+            Assert.Equal(45d, sheet.Cell("E4").GetDouble());
+            Assert.True(sheet.Cell("A5").IsEmpty());
+            Assert.Equal(10d, sheet.Cell("J3").GetDouble());
+            Assert.Equal(20d, sheet.Cell("J6").GetDouble());
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+        }
+    }
+
     [Theory]
     [InlineData("exp_0526_dis_d10.5r4.mat", "d10.5", "d10.5r4")]
     [InlineData("exp_0526_dis_d3r2.mat", "d3", "d3r2")]
@@ -186,6 +216,23 @@ public sealed class ReviewExcelWriterTests
             matrix[row, 0] = row + 1;
             matrix[row, 2] = trials[row].Stimulation;
             matrix[row, 3] = trials[row].Latency;
+            matrix[row, 7] = 2;
+        }
+
+        return new PreparedMatFile(fileName, matrix, SourceColumnCount: 8);
+    }
+
+    private static PreparedMatFile CreateDangerFile(
+        string fileName,
+        params (double Time, double Latency)[] trials)
+    {
+        var matrix = Matrix<double>.Build.Dense(trials.Length, 8);
+        for (var row = 0; row < trials.Length; row++)
+        {
+            matrix[row, 0] = row + 1;
+            matrix[row, 2] = 1;
+            matrix[row, 3] = trials[row].Latency;
+            matrix[row, 4] = trials[row].Time;
             matrix[row, 7] = 2;
         }
 

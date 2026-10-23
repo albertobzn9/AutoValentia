@@ -1,5 +1,7 @@
 namespace AutoValentia;
 
+using MathNet.Numerics.LinearAlgebra;
+
 internal sealed record LatencyReviewSet(
     IReadOnlyList<RatLatencyReview> Reviews,
     CrossingType CrossingType);
@@ -26,6 +28,19 @@ internal static class LatencyReviewSetBuilder
         }
 
         var crossingType = CrossingTypeDetector.Detect(initialReviews);
+        if (crossingType == CrossingType.DangerCrossings)
+        {
+            var limitedReviews = initialReviews
+                .Select(review =>
+                {
+                    var source = TrimDangerCrossingTrials(review.Source, review.Identifier.Day);
+                    return LatencyReviewBuilder.Build(source);
+                })
+                .ToList();
+
+            return new LatencyReviewSet(limitedReviews, crossingType);
+        }
+
         if (crossingType != CrossingType.Discrimination)
         {
             return new LatencyReviewSet(initialReviews, crossingType);
@@ -40,4 +55,46 @@ internal static class LatencyReviewSetBuilder
 
         return new LatencyReviewSet(reviews, crossingType);
     }
+
+    private static PreparedMatFile TrimDangerCrossingTrials(PreparedMatFile source, decimal day)
+    {
+        var matrix = source.Matrix ?? throw new ArgumentException("La matriz no está preparada para el análisis.");
+        var maximumTime = GetDangerCrossingMaximumTime(day);
+        var acceptedRows = Enumerable.Range(0, matrix.RowCount)
+            .Where(row => matrix[row, 4] <= maximumTime)
+            .ToList();
+
+        if (acceptedRows.Count == matrix.RowCount)
+        {
+            return source;
+        }
+
+        var trimmed = Matrix<double>.Build.Dense(acceptedRows.Count, matrix.ColumnCount);
+        for (var trimmedRow = 0; trimmedRow < acceptedRows.Count; trimmedRow++)
+        {
+            var sourceRow = acceptedRows[trimmedRow];
+            for (var column = 0; column < matrix.ColumnCount; column++)
+            {
+                trimmed[trimmedRow, column] = matrix[sourceRow, column];
+            }
+
+            trimmed[trimmedRow, 0] = trimmedRow + 1;
+        }
+
+        return source with
+        {
+            Matrix = trimmed,
+            RemovedRows = source.RemovedRows + matrix.RowCount - acceptedRows.Count
+        };
+    }
+
+    private static double GetDangerCrossingMaximumTime(decimal day) => day switch
+    {
+        1m or 2m => 30d + 15d,
+        3m => 60d + 15d,
+        4m => 90d + 15d,
+        5m => 120d + 15d,
+        _ => throw new InvalidOperationException(
+            $"Cruces peligrosos solo admite días d1 a d5; se recibió d{day:0.##}.")
+    };
 }

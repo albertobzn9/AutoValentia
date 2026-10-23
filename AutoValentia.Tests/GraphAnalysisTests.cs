@@ -84,6 +84,28 @@ public sealed class GraphAnalysisTests
         Assert.Equal(103d, Point(analysis, 2, 3, GraphCondition.Danger).Mean);
     }
 
+    [Fact]
+    public void Build_uses_the_protocol_time_limit_for_each_danger_crossing_day()
+    {
+        var files = new[]
+        {
+            CreateDangerFile("exp_0526_ame_d1r1.mat", (45d, 1d), (45.01d, 101d)),
+            CreateDangerFile("exp_0526_ame_d2r1.mat", (45d, 2d), (45.01d, 102d)),
+            CreateDangerFile("exp_0526_ame_d3r1.mat", (75d, 3d), (75.01d, 103d)),
+            CreateDangerFile("exp_0526_ame_d4r1.mat", (105d, 4d), (105.01d, 104d)),
+            CreateDangerFile("exp_0526_ame_d5r1.mat", (135d, 5d), (135.01d, 105d))
+        };
+
+        var analysis = GraphAnalysisBuilder.Build(files);
+
+        Assert.Equal(CrossingType.DangerCrossings, analysis.CrossingType);
+        for (var day = 1; day <= 5; day++)
+        {
+            Assert.Equal((double)day, Point(analysis, day, 1, GraphCondition.Danger).Mean);
+            Assert.Null(Point(analysis, day, 2, GraphCondition.Danger).Mean);
+        }
+    }
+
     private static GraphPoint Point(GraphAnalysis analysis, decimal day, int block, GraphCondition condition) =>
         analysis.Points.Single(point => point.Day == day && point.Block == block && point.Condition == condition);
 
@@ -111,6 +133,23 @@ public sealed class GraphAnalysisTests
             matrix[row, 0] = row + 1;
             matrix[row, 2] = trials[row].Stimulation;
             matrix[row, 3] = trials[row].Latency;
+            matrix[row, 7] = 2;
+        }
+
+        return new PreparedMatFile(fileName, matrix, SourceColumnCount: 8);
+    }
+
+    private static PreparedMatFile CreateDangerFile(
+        string fileName,
+        params (double Time, double Latency)[] trials)
+    {
+        var matrix = Matrix<double>.Build.Dense(trials.Length, 8);
+        for (var row = 0; row < trials.Length; row++)
+        {
+            matrix[row, 0] = row + 1;
+            matrix[row, 2] = 1;
+            matrix[row, 3] = trials[row].Latency;
+            matrix[row, 4] = trials[row].Time;
             matrix[row, 7] = 2;
         }
 
