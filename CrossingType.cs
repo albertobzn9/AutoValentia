@@ -1,6 +1,6 @@
 namespace AutoValentia;
 
-internal enum CrossingType
+public enum CrossingType
 {
     SafeCrossings,
     DangerCrossings,

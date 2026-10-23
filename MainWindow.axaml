@@ -44,6 +44,7 @@
         <Button x:Name="SelectFilesButton" MinWidth="180" Click="SelectFilesButton_Click" Content="Seleccionar .mat…" />
         <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Quitar de la lista" />
         <Button x:Name="ExportReviewButton" MinWidth="180" Click="ExportReviewButton_Click" Content="Crear Excel de revisión…" />
+        <Button x:Name="GraphButton" MinWidth="180" Click="GraphButton_Click" Content="Ver gráficas…" />
       </StackPanel>
     </Grid>
 

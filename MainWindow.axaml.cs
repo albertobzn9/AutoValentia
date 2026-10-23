@@ -133,6 +133,20 @@ public partial class MainWindow : Window
         }
     }
 
+    private void GraphButton_Click(object? sender, RoutedEventArgs eventArgs)
+    {
+        try
+        {
+            var analysis = GraphAnalysisBuilder.Build(_selectedFiles);
+            var graphWindow = new GraphWindow(analysis);
+            graphWindow.Show(this);
+        }
+        catch (Exception exception)
+        {
+            StatusText.Text = $"No se pudieron crear las gráficas: {exception.Message}";
+        }
+    }
+
     private void RefreshFiles(int selectedIndex = -1)
     {
         FilesListBox.ItemsSource = _selectedFiles.Select(file => file.ToString()).ToList();
@@ -153,5 +167,6 @@ public partial class MainWindow : Window
         SelectFilesButton.IsEnabled = true;
         RemoveButton.IsEnabled = selectedIndex >= 0;
         ExportReviewButton.IsEnabled = _selectedFiles.Count > 0 && _selectedFiles.All(file => file.IsReady);
+        GraphButton.IsEnabled = _selectedFiles.Count > 0 && _selectedFiles.All(file => file.IsReady);
     }
 }

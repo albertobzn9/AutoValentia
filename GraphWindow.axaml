@@ -1,0 +1,42 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+        x:Class="AutoValentia.GraphWindow"
+        Title="Gráficas de latencias"
+        Icon="/Scripts/ifc_logo.ico"
+        Width="1050"
+        Height="720"
+        MinWidth="760"
+        MinHeight="540"
+        WindowStartupLocation="CenterOwner">
+  <Grid Margin="24" RowDefinitions="Auto,*,Auto" RowSpacing="14">
+    <StackPanel Spacing="4">
+      <TextBlock x:Name="TitleText" FontSize="26" FontWeight="SemiBold" />
+      <TextBlock x:Name="SubtitleText"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+
+    <Border Grid.Row="1"
+            Padding="8"
+            Background="White"
+            BorderBrush="{DynamicResource SystemControlOutlineBaseLowBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+      <scottPlot:AvaPlot x:Name="LatencyPlot" />
+    </Border>
+
+    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="20">
+      <StackPanel Orientation="Horizontal" Spacing="7">
+        <Border Width="14" Height="14" Background="#218739" CornerRadius="7" />
+        <TextBlock Text="Cruces seguros" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="7">
+        <Border Width="14" Height="14" Background="Black" CornerRadius="7" />
+        <TextBlock Text="Cruces peligrosos" />
+      </StackPanel>
+      <TextBlock Text="Las barras muestran el error estándar de la media (SEM)."
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    </StackPanel>
+  </Grid>
+</Window>
