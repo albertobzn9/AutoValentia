@@ -1,14 +1,14 @@
 # AutoValentia
 
-AutoValentia is a cross-platform desktop app for reviewing behavioral-task data from Valentia Box experiments. It reads MATLAB `.mat` files, prepares latency data by trial block, exports review workbooks, and creates latency plots.
+AutoValentia is a cross-platform desktop app for reviewing and analyzing behavioral-task data from the Crossing-Mediated Conflict Task. It reads MATLAB `.mat` files, prepares latency data by trial block, exports review workbooks, and creates latency plots.
 
 It is built with .NET and Avalonia UI for macOS and Windows.
 
 ## What it does
 
-- Opens `.mat` files containing a `Resultados` matrix with 8 or 9 columns.
+- Opens `.mat` files containing a matrix with 8 or 9 columns with raw data from the protocol .
 - Normalizes compatible 9-column matrices to 8 columns automatically.
-- Detects safe crossings, danger crossings, and discrimination sessions from the data.
+- Detects no-conflict crossings, conflict crossings, and discrimination sessions from the data.
 - Splits valid latency observations into three ordered blocks.
 - Exports an Excel workbook with a daily raw-data view, per-rat block values, block averages, and SEM.
 - Creates latency plots and exports them as PNG files.
