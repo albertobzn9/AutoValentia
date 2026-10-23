@@ -68,6 +68,14 @@ public sealed class ReviewExcelWriterTests
             Assert.True(dayOne.Cell("V3").Style.Font.Bold);
             Assert.Equal("n/a", dayOne.Cell("X3").GetString());
             Assert.True(dayOne.Cell("X3").Style.Font.Bold);
+
+            Assert.Equal("average", summary.Cell("A10").GetString());
+            Assert.Contains("AVERAGE(A3,A7)", summary.Cell("A11").FormulaA1);
+            Assert.True(summary.Cell("A11").Style.Font.Bold);
+            Assert.Equal("0.00", summary.Cell("A11").Style.NumberFormat.Format);
+            Assert.Equal("sem", summary.Cell("A14").GetString());
+            Assert.Contains("STDEV.S(A3,A7)", summary.Cell("A15").FormulaA1);
+            Assert.True(summary.Cell("A15").Style.Font.Bold);
         }
         finally
         {

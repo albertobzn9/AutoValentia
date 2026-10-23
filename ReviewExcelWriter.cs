@@ -66,6 +66,38 @@ internal static class ReviewExcelWriter
                 }
             }
         }
+
+        WriteSummaryStatistics(worksheet, days, rats);
+    }
+
+    private static void WriteSummaryStatistics(
+        IXLWorksheet worksheet,
+        IReadOnlyList<decimal> days,
+        IReadOnlyList<int> rats)
+    {
+        var averageLabelRow = 2 + rats.Count * 4;
+        worksheet.Cell(averageLabelRow, 1).Value = "average";
+
+        for (var blockIndex = 0; blockIndex < 3; blockIndex++)
+        {
+            var averageRow = averageLabelRow + 1 + blockIndex;
+            var semRow = averageLabelRow + 5 + blockIndex;
+            for (var dayIndex = 0; dayIndex < days.Count; dayIndex++)
+            {
+                for (var conditionOffset = 0; conditionOffset < 2; conditionOffset++)
+                {
+                    var column = 1 + dayIndex * 2 + conditionOffset;
+                    var blockCells = rats
+                        .Select((_, ratIndex) => worksheet.Cell(3 + ratIndex * 4 + blockIndex, column))
+                        .ToList();
+                    var references = string.Join(",", blockCells.Select(cell => cell.Address.ToString()));
+                    WriteSummaryAverage(worksheet.Cell(averageRow, column), references);
+                    WriteSummarySem(worksheet.Cell(semRow, column), references);
+                }
+            }
+        }
+
+        worksheet.Cell(averageLabelRow + 4, 1).Value = "sem";
     }
 
     private static void WriteDaySheet(
@@ -162,5 +194,19 @@ internal static class ReviewExcelWriter
 
         WriteNumber(cell, value.Value);
         cell.Style.Font.Bold = bold;
+    }
+
+    private static void WriteSummaryAverage(IXLCell cell, string references)
+    {
+        cell.FormulaA1 = $"IF(COUNT({references})=0,\"n/a\",AVERAGE({references}))";
+        cell.Style.NumberFormat.Format = "0.00";
+        cell.Style.Font.Bold = true;
+    }
+
+    private static void WriteSummarySem(IXLCell cell, string references)
+    {
+        cell.FormulaA1 = $"IF(COUNT({references})=0,\"n/a\",IF(COUNT({references})=1,0,STDEV.S({references})/SQRT(COUNT({references}))))";
+        cell.Style.NumberFormat.Format = "0.00";
+        cell.Style.Font.Bold = true;
     }
 }
