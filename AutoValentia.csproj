@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Scripts/ifc_logo.ico</ApplicationIcon>
+    <ApplicationIcon>Assets/AutoValentia.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Include="Scripts/ifc_logo.ico" />
+    <AvaloniaResource Include="Assets/AutoValentia.ico" />
   </ItemGroup>
 
   <ItemGroup>
