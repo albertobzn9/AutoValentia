@@ -21,7 +21,7 @@ fi
 
 mkdir -p "$publish_root" "$release_root"
 
-dotnet publish "$repository_root/src/AutoValentia/AutoValentia.csproj" \
+dotnet publish "$repository_root/src/AutoValentia.csproj" \
   -c Release \
   -r osx-arm64 \
   --self-contained true \
@@ -35,7 +35,7 @@ dotnet publish "$repository_root/src/AutoValentia/AutoValentia.csproj" \
 mkdir -p "$mac_app/Contents/MacOS" "$mac_app/Contents/Resources"
 ditto "$mac_publish" "$mac_app/Contents/MacOS"
 cp "$repository_root/packaging/macos/Info.plist" "$mac_app/Contents/Info.plist"
-cp "$repository_root/src/AutoValentia/Assets/AutoValentia.icns" "$mac_app/Contents/Resources/AutoValentia.icns"
+cp "$repository_root/src/Assets/AutoValentia.icns" "$mac_app/Contents/Resources/AutoValentia.icns"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $version" "$mac_app/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $version" "$mac_app/Contents/Info.plist"
 chmod +x "$mac_app/Contents/MacOS/AutoValentia"
@@ -54,7 +54,7 @@ ln -s /Applications "$dmg_stage/Applications"
 hdiutil create -size 256m -volname "AutoValentia $version" -srcfolder "$dmg_stage" -ov -format UDZO "$mac_dmg"
 hdiutil verify "$mac_dmg"
 
-dotnet publish "$repository_root/src/AutoValentia/AutoValentia.csproj" \
+dotnet publish "$repository_root/src/AutoValentia.csproj" \
   -c Release \
   -r win-x64 \
   --self-contained true \
