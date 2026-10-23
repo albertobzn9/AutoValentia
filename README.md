@@ -1,60 +1,55 @@
 # AutoValentia
 
-Aplicación de escritorio multiplataforma para preparar y analizar ensayos conductuales de Caja Valentía.
+AutoValentia is a cross-platform desktop app for reviewing behavioral-task data from Valentia Box experiments. It reads MATLAB `.mat` files, prepares latency data by trial block, exports review workbooks, and creates latency plots.
 
-La aplicación está desarrollada en **.NET 10 + Avalonia UI** para macOS y Windows. Permite seleccionar archivos `.mat`, prepararlos automáticamente y exportar un Excel de revisión ordenado por día y rata.
+It is built with .NET and Avalonia UI for macOS and Windows.
 
-La implementación original en Python permanece en `Scripts/` como referencia funcional durante la migración.
+## What it does
 
-## Estado de la reescritura
+- Opens `.mat` files containing a `Resultados` matrix with 8 or 9 columns.
+- Normalizes compatible 9-column matrices to 8 columns automatically.
+- Detects safe crossings, danger crossings, and discrimination sessions from the data.
+- Splits valid latency observations into three ordered blocks.
+- Exports an Excel workbook with a daily raw-data view, per-rat block values, block averages, and SEM.
+- Creates latency plots and exports them as PNG files.
 
-Este proyecto se está reescribiendo activamente de Python a **.NET + Avalonia UI** para contar con una aplicación de escritorio multiplataforma.
+## Input requirements
 
-Ya está listo el flujo de revisión: carga automática de archivos `.mat`, preparación de matrices, división de latencias en tercios y generación del Excel de revisión por día y rata.
-
-La siguiente etapa pendiente es la generación de gráficas a partir de los datos y días seleccionados. La definición de esas gráficas se incorporará después de validar el flujo de selección experimental.
-
-**Caja Valentía** es una herramienta de automatización desarrollada para optimizar el flujo de trabajo en laboratorios de neurociencias (específicamente para el IFC de la UNAM). El software procesa archivos de datos crudos (`.mat`) provenientes de ensayos conductuales, automatizando la limpieza de datos, el cálculo de latencias y la generación de reportes estadísticos visuales y tabulares.
-
-Esta herramienta fue diseñada específicamente para trabajar con **Pruebas de Conflicto**, permitiendo a los investigadores centrarse en la interpretación de resultados en lugar del procesamiento manual de datos.
-
-## Características Principales
-
-* **Procesamiento Automatizado:** Lectura y preparación directa de archivos `.mat` de MATLAB.
-* **Análisis por Bloques (Tercios):** División automática de sesiones experimentales en tres bloques para el análisis de tendencias intra-sesión (aprendizaje, fatiga, conflicto).
-* **Visualización Científica:** Pendiente en la reescritura de Avalonia. Se agregará después de definir las gráficas y los datos seleccionados para el análisis.
-* **Exportación Consolidada:** Creación de reportes en Excel (`.xlsx`) con hojas de resumen, promedios por rata y desglose detallado de cada ensayo.
-* **Interfaz de Usuario:** Aplicación de escritorio construida con Avalonia UI para macOS y Windows.
-
-## Metodología
-
-La lógica de procesamiento de este software y el diseño del protocolo de análisis se basan estrictamente en la metodología descrita en el siguiente artículo científico:
-
-> **Illescas-Huerta, E., Ramirez-Lugo, L., Sierra, R. O., Quillfeldt, J. A., & Sotres-Bayon, F. (2021).** *Conflict Test Battery for Studying the Act of Facing Threats in Pursuit of Rewards.* Frontiers in Neuroscience, 15, 645769. 
-> [DOI: 10.3389/fnins.2021.645769](https://doi.org/10.3389/fnins.2021.645769)
-
-**Si utilizas este software en tu investigación, por favor asegúrate de citar el artículo original mencionado arriba.**
-
-## Vídeo de instalación y explicación: https://youtu.be/M_hgrKpL-go
-
-## Archivo Paralelo En Drive
-
-Existe un snapshot de referencia en:
+Each file name must include its session day and rat number, for example:
 
 ```text
-/Users/ab/Library/CloudStorage/GoogleDrive-jasjabs19@gmail.com/My Drive/workspace/03_lab/01_Proyecto_Grande_App/01_analisis-conductual/01_sources/05_scripts/AutomatizacionCajaValentia
+exp_0526_dis_d3r4.mat
 ```
 
-Ese directorio no es una copia activa ni un worktree confiable. Este repositorio
-es la referencia de código; cualquier hallazgo del snapshot debe revisarse e
-incorporarse aquí como un cambio puntual.
+This identifies day 3 and rat 4. The MATLAB file must contain a numeric matrix named `Resultados`.
 
-## 🛠️ Requisitos e Instalación
+## Analysis rules
 
-Para ejecutar el código desde el repositorio se necesita el SDK de **.NET 10**. Desde la carpeta del proyecto:
+Only valid crossings are included in the latency analysis. The app applies the following protocol rules:
+
+- For discrimination, the final day uses the first 7 safe crossings and the first 3 danger crossings.
+- For danger crossings, latency outliers are removed above the daily protocol limit: 45 s on days 1–2, 75 s on day 3, 105 s on day 4, and 135 s on day 5.
+- Excel and plot outputs use the same filtered data.
+
+## Use the app
+
+1. Download the appropriate package from [Releases](../../releases).
+2. Open AutoValentia and add the `.mat` files to review.
+3. Create the Excel review workbook or open the latency plot.
+4. Optionally export the plot as a PNG image.
+
+Available packages are a DMG and ZIP for macOS Apple Silicon, plus an EXE and ZIP for Windows x64.
+
+## Run from source
+
+Install the .NET 10 SDK, then run:
 
 ```bash
-dotnet run
+dotnet run --project AutoValentia.csproj
 ```
 
-Las versiones empaquetadas para usuarios finales se descargarán desde la sección Releases del repositorio.
+## Method reference
+
+The behavioral-task workflow is based on:
+
+Illescas-Huerta, E., Ramirez-Lugo, L., Sierra, R. O., Quillfeldt, J. A., & Sotres-Bayon, F. (2021). *Conflict Test Battery for Studying the Act of Facing Threats in Pursuit of Rewards.* Frontiers in Neuroscience, 15, 645769. [https://doi.org/10.3389/fnins.2021.645769](https://doi.org/10.3389/fnins.2021.645769)
