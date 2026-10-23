@@ -3,7 +3,7 @@
         xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
         x:Class="AutoValentia.GraphWindow"
         Title="Gráficas de latencias"
-        Icon="/Scripts/ifc_logo.ico"
+        Icon="/Assets/AutoValentia.ico"
         Width="1050"
         Height="720"
         MinWidth="760"
