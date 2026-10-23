@@ -59,9 +59,9 @@ internal static class LatencyReviewSetBuilder
     private static PreparedMatFile TrimDangerCrossingTrials(PreparedMatFile source, decimal day)
     {
         var matrix = source.Matrix ?? throw new ArgumentException("La matriz no está preparada para el análisis.");
-        var maximumTime = GetDangerCrossingMaximumTime(day);
+        var maximumLatency = GetDangerCrossingMaximumLatency(day);
         var acceptedRows = Enumerable.Range(0, matrix.RowCount)
-            .Where(row => matrix[row, 4] <= maximumTime)
+            .Where(row => matrix[row, 3] <= maximumLatency)
             .ToList();
 
         if (acceptedRows.Count == matrix.RowCount)
@@ -88,7 +88,7 @@ internal static class LatencyReviewSetBuilder
         };
     }
 
-    private static double GetDangerCrossingMaximumTime(decimal day) => day switch
+    private static double GetDangerCrossingMaximumLatency(decimal day) => day switch
     {
         1m or 2m => 30d + 15d,
         3m => 60d + 15d,

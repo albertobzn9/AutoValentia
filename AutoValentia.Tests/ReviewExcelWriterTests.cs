@@ -166,22 +166,24 @@ public sealed class ReviewExcelWriterTests
     }
 
     [Fact]
-    public void Write_excludes_danger_crossing_trials_after_the_protocol_time_limit()
+    public void Write_excludes_danger_crossing_trials_after_the_protocol_latency_limit()
     {
         var outputPath = Path.Combine(Path.GetTempPath(), $"autovalentia-{Guid.NewGuid():N}.xlsx");
         try
         {
             var files = new[]
             {
-                CreateDangerFile("exp_0526_ame_d1r1.mat", (44d, 10d), (45d, 20d), (45.01d, 999d))
+                CreateDangerFile("exp_0526_ame_d1r1.mat", (300d, 10d), (900d, 20d), (1d, 45.01d))
             };
 
             ReviewExcelWriter.Write(outputPath, files);
 
             using var workbook = new XLWorkbook(outputPath);
             var sheet = workbook.Worksheet("d1");
-            Assert.Equal(44d, sheet.Cell("E3").GetDouble());
-            Assert.Equal(45d, sheet.Cell("E4").GetDouble());
+            Assert.Equal(10d, sheet.Cell("D3").GetDouble());
+            Assert.Equal(20d, sheet.Cell("D4").GetDouble());
+            Assert.Equal(300d, sheet.Cell("E3").GetDouble());
+            Assert.Equal(900d, sheet.Cell("E4").GetDouble());
             Assert.True(sheet.Cell("A5").IsEmpty());
             Assert.Equal(10d, sheet.Cell("J3").GetDouble());
             Assert.Equal(20d, sheet.Cell("J6").GetDouble());

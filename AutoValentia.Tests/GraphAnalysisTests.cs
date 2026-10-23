@@ -85,15 +85,15 @@ public sealed class GraphAnalysisTests
     }
 
     [Fact]
-    public void Build_uses_the_protocol_time_limit_for_each_danger_crossing_day()
+    public void Build_uses_the_protocol_latency_limit_for_each_danger_crossing_day()
     {
         var files = new[]
         {
-            CreateDangerFile("exp_0526_ame_d1r1.mat", (45d, 1d), (45.01d, 101d)),
-            CreateDangerFile("exp_0526_ame_d2r1.mat", (45d, 2d), (45.01d, 102d)),
-            CreateDangerFile("exp_0526_ame_d3r1.mat", (75d, 3d), (75.01d, 103d)),
-            CreateDangerFile("exp_0526_ame_d4r1.mat", (105d, 4d), (105.01d, 104d)),
-            CreateDangerFile("exp_0526_ame_d5r1.mat", (135d, 5d), (135.01d, 105d))
+            CreateDangerFile("exp_0526_ame_d1r1.mat", (900d, 45d), (1d, 45.01d)),
+            CreateDangerFile("exp_0526_ame_d2r1.mat", (900d, 45d), (1d, 45.01d)),
+            CreateDangerFile("exp_0526_ame_d3r1.mat", (900d, 75d), (1d, 75.01d)),
+            CreateDangerFile("exp_0526_ame_d4r1.mat", (900d, 105d), (1d, 105.01d)),
+            CreateDangerFile("exp_0526_ame_d5r1.mat", (900d, 135d), (1d, 135.01d))
         };
 
         var analysis = GraphAnalysisBuilder.Build(files);
@@ -101,7 +101,8 @@ public sealed class GraphAnalysisTests
         Assert.Equal(CrossingType.DangerCrossings, analysis.CrossingType);
         for (var day = 1; day <= 5; day++)
         {
-            Assert.Equal((double)day, Point(analysis, day, 1, GraphCondition.Danger).Mean);
+            var expectedLatency = day switch { 1 or 2 => 45d, 3 => 75d, 4 => 105d, _ => 135d };
+            Assert.Equal(expectedLatency, Point(analysis, day, 1, GraphCondition.Danger).Mean);
             Assert.Null(Point(analysis, day, 2, GraphCondition.Danger).Mean);
         }
     }
