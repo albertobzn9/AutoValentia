@@ -20,7 +20,4 @@
     <AvaloniaResource Include="Assets/AutoValentia.ico" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="AutoValentia.Tests/**/*.cs" />
-  </ItemGroup>
 </Project>

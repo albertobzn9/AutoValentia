@@ -45,7 +45,7 @@ Available packages are a DMG and ZIP for macOS Apple Silicon, plus an EXE and ZI
 Install the .NET 10 SDK, then run:
 
 ```bash
-dotnet run --project AutoValentia.csproj
+dotnet run --project src/AutoValentia/AutoValentia.csproj
 ```
 
 ## Method reference
