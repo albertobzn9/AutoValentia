@@ -128,6 +128,43 @@ public sealed class ReviewExcelWriterTests
         }
     }
 
+    [Fact]
+    public void Write_trims_the_final_discrimination_day_after_seven_safe_and_three_danger_trials()
+    {
+        var outputPath = Path.Combine(Path.GetTempPath(), $"autovalentia-{Guid.NewGuid():N}.xlsx");
+        try
+        {
+            var files = new[]
+            {
+                CreateFile("exp_0526_dis_d1r1.mat", (0, 1d), (1, 10d)),
+                CreateFile(
+                    "exp_0526_dis_d2r1.mat",
+                    (0, 1d), (0, 2d), (0, 3d), (0, 4d), (0, 5d), (0, 6d), (0, 7d),
+                    (1, 101d), (1, 102d), (1, 103d),
+                    (0, 999d), (1, 999d))
+            };
+
+            var result = ReviewExcelWriter.Write(outputPath, files);
+
+            using var workbook = new XLWorkbook(outputPath);
+            var finalDay = workbook.Worksheet("d2");
+            Assert.Equal(CrossingType.Discrimination, result.CrossingType);
+            Assert.Equal(3d, finalDay.Cell("I5").GetDouble());
+            Assert.Equal(2d, finalDay.Cell("I6").GetDouble());
+            Assert.Equal(101d, finalDay.Cell("J3").GetDouble());
+            Assert.Equal(101d, finalDay.Cell("J4").GetDouble());
+            Assert.Equal(10d, finalDay.Cell("A12").GetDouble());
+            Assert.True(finalDay.Cell("A13").IsEmpty());
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+        }
+    }
+
     [Theory]
     [InlineData("exp_0526_dis_d10.5r4.mat", "d10.5", "d10.5r4")]
     [InlineData("exp_0526_dis_d3r2.mat", "d3", "d3r2")]

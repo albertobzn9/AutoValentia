@@ -22,24 +22,9 @@ internal static class GraphAnalysisBuilder
 {
     public static GraphAnalysis Build(IReadOnlyCollection<PreparedMatFile> files)
     {
-        var reviews = files
-            .Select(LatencyReviewBuilder.Build)
-            .OrderBy(review => review.Identifier.Day)
-            .ThenBy(review => review.Identifier.Rat)
-            .ToList();
-
-        if (reviews.Count == 0)
-        {
-            throw new InvalidOperationException("No hay matrices listas para analizar.");
-        }
-
-        var duplicate = reviews.GroupBy(review => review.Identifier).FirstOrDefault(group => group.Count() > 1);
-        if (duplicate is not null)
-        {
-            throw new InvalidOperationException($"Hay más de un archivo identificado como {duplicate.Key.DisplayName}.");
-        }
-
-        var crossingType = CrossingTypeDetector.Detect(reviews);
+        var reviewSet = LatencyReviewSetBuilder.Build(files);
+        var reviews = reviewSet.Reviews;
+        var crossingType = reviewSet.CrossingType;
         var points = new List<GraphPoint>();
 
         foreach (var dayGroup in reviews.GroupBy(review => review.Identifier.Day).OrderBy(group => group.Key))

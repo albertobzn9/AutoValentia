@@ -21,11 +21,12 @@ internal sealed record RatLatencyReview(
     SessionIdentifier Identifier,
     IReadOnlyList<double> SafeLatencies,
     IReadOnlyList<double> RiskLatencies,
-    IReadOnlyList<LatencyBlock> Blocks);
+    IReadOnlyList<LatencyBlock> Blocks,
+    int MatrixRowsForExport);
 
 internal static class LatencyReviewBuilder
 {
-    public static RatLatencyReview Build(PreparedMatFile file)
+    public static RatLatencyReview Build(PreparedMatFile file, bool applyDiscriminationFinalDayLimit = false)
     {
         if (!file.IsReady || file.Matrix is null)
         {
@@ -40,7 +41,12 @@ internal static class LatencyReviewBuilder
 
         var safe = new List<double>();
         var risk = new List<double>();
-        AddEligibleLatencies(file.Matrix, safe, risk);
+        var matrixRowsForExport = AddEligibleLatencies(
+            file.Matrix,
+            safe,
+            risk,
+            applyDiscriminationFinalDayLimit ? 7 : null,
+            applyDiscriminationFinalDayLimit ? 3 : null);
 
         var safeBlocks = SplitIntoThree(safe);
         var riskBlocks = SplitIntoThree(risk);
@@ -48,13 +54,15 @@ internal static class LatencyReviewBuilder
             .Select(index => new LatencyBlock(safeBlocks[index], riskBlocks[index]))
             .ToList();
 
-        return new RatLatencyReview(file, identifier, safe, risk, blocks);
+        return new RatLatencyReview(file, identifier, safe, risk, blocks, matrixRowsForExport);
     }
 
-    private static void AddEligibleLatencies(
+    private static int AddEligibleLatencies(
         Matrix<double> matrix,
         ICollection<double> safe,
-        ICollection<double> risk)
+        ICollection<double> risk,
+        int? maximumSafe,
+        int? maximumRisk)
     {
         for (var row = 0; row < matrix.RowCount; row++)
         {
@@ -65,15 +73,25 @@ internal static class LatencyReviewBuilder
 
             var stimulation = matrix[row, 2];
             var latency = matrix[row, 3];
-            if (stimulation == 0d)
+            if (stimulation == 0d && (!maximumSafe.HasValue || safe.Count < maximumSafe.Value))
             {
                 safe.Add(latency);
             }
-            else if (stimulation == 1d)
+            else if (stimulation == 1d && (!maximumRisk.HasValue || risk.Count < maximumRisk.Value))
             {
                 risk.Add(latency);
             }
+
+            if (maximumSafe.HasValue && maximumRisk.HasValue &&
+                safe.Count == maximumSafe.Value && risk.Count == maximumRisk.Value)
+            {
+                // El protocolo de discriminación termina en el décimo cruce válido:
+                // 7 seguros y 3 peligrosos. Las filas posteriores no se exportan.
+                return row + 1;
+            }
         }
+
+        return matrix.RowCount;
     }
 
     private static IReadOnlyList<IReadOnlyList<double>> SplitIntoThree(IReadOnlyList<double> values)
