@@ -18,13 +18,13 @@ internal static class LatencyReviewSetBuilder
 
         if (initialReviews.Count == 0)
         {
-            throw new InvalidOperationException("No hay matrices listas para analizar.");
+            throw new InvalidOperationException("No matrices are ready for analysis.");
         }
 
         var duplicate = initialReviews.GroupBy(review => review.Identifier).FirstOrDefault(group => group.Count() > 1);
         if (duplicate is not null)
         {
-            throw new InvalidOperationException($"Hay más de un archivo identificado como {duplicate.Key.DisplayName}.");
+            throw new InvalidOperationException($"More than one file is identified as {duplicate.Key.DisplayName}.");
         }
 
         var crossingType = CrossingTypeDetector.Detect(initialReviews);
@@ -58,7 +58,7 @@ internal static class LatencyReviewSetBuilder
 
     private static PreparedMatFile TrimDangerCrossingTrials(PreparedMatFile source, decimal day)
     {
-        var matrix = source.Matrix ?? throw new ArgumentException("La matriz no está preparada para el análisis.");
+        var matrix = source.Matrix ?? throw new ArgumentException("The matrix is not ready for analysis.");
         var maximumLatency = GetDangerCrossingMaximumLatency(day);
         var acceptedRows = Enumerable.Range(0, matrix.RowCount)
             .Where(row => matrix[row, 3] <= maximumLatency)
@@ -95,6 +95,6 @@ internal static class LatencyReviewSetBuilder
         4m => 90d + 15d,
         5m => 120d + 15d,
         _ => throw new InvalidOperationException(
-            $"Cruces peligrosos solo admite días d1 a d5; se recibió d{day:0.##}.")
+            $"Conflict crossings only support days d1 through d5; received d{day:0.##}.")
     };
 }

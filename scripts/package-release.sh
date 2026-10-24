@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="${1:?Uso: ./scripts/package-release.sh VERSION}"
+version="${1:?Usage: ./scripts/package-release.sh VERSION}"
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 publish_root="$repository_root/artifacts/publish/$version"
 release_root="$repository_root/artifacts/release/$version"
@@ -15,7 +15,7 @@ windows_zip="$release_root/AutoValentia-$version-windows-x64.zip"
 dmg_stage="$release_root/dmg-stage"
 
 if [[ -e "$release_root" || -e "$publish_root" ]]; then
-  echo "Ya existen artefactos para la versión $version. Usa una versión nueva."
+  echo "Artifacts already exist for version $version. Use a new version."
   exit 1
 fi
 
@@ -68,5 +68,5 @@ dotnet publish "$repository_root/src/AutoValentia.csproj" \
 cp "$windows_publish/AutoValentia.exe" "$windows_exe"
 COPYFILE_DISABLE=1 zip -j -q "$windows_zip" "$windows_exe"
 
-echo "Artefactos creados en: $release_root"
+echo "Artifacts created in: $release_root"
 ls -lh "$mac_dmg" "$mac_zip" "$windows_exe" "$windows_zip"

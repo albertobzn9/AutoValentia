@@ -12,7 +12,7 @@
     <StackPanel Spacing="5">
       <TextBlock FontSize="30" FontWeight="SemiBold" Text="AutoValentia" />
       <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                 Text="Preparación y revisión de ensayos conductuales." />
+                 Text="Behavioral trial preparation and review." />
     </StackPanel>
 
     <Border Grid.Row="1"
@@ -22,9 +22,9 @@
             BorderThickness="1"
             CornerRadius="8">
       <StackPanel Spacing="6">
-        <TextBlock FontWeight="SemiBold" Text="1. Selecciona los archivos MATLAB" />
+        <TextBlock FontWeight="SemiBold" Text="1. Select MATLAB files" />
         <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                   Text="La app prepara automáticamente los archivos seleccionados para crear el Excel de revisión." />
+                   Text="The app automatically prepares selected files to create a review workbook." />
       </StackPanel>
     </Border>
 
@@ -41,10 +41,10 @@
       </Border>
 
       <StackPanel Grid.Column="1" Spacing="9" VerticalAlignment="Top">
-        <Button x:Name="SelectFilesButton" MinWidth="180" Click="SelectFilesButton_Click" Content="Seleccionar .mat…" />
-        <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Quitar de la lista" />
-        <Button x:Name="ExportReviewButton" MinWidth="180" Click="ExportReviewButton_Click" Content="Crear Excel de revisión…" />
-        <Button x:Name="GraphButton" MinWidth="180" Click="GraphButton_Click" Content="Ver gráficas…" />
+        <Button x:Name="SelectFilesButton" MinWidth="180" Click="SelectFilesButton_Click" Content="Select .mat files…" />
+        <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Remove from list" />
+        <Button x:Name="ExportReviewButton" MinWidth="180" Click="ExportReviewButton_Click" Content="Create review workbook…" />
+        <Button x:Name="GraphButton" MinWidth="180" Click="GraphButton_Click" Content="View plots…" />
       </StackPanel>
     </Grid>
 

@@ -30,13 +30,13 @@ internal static class LatencyReviewBuilder
     {
         if (!file.IsReady || file.Matrix is null)
         {
-            throw new ArgumentException($"{Path.GetFileName(file.Path)} no está preparada para el análisis.");
+            throw new ArgumentException($"{Path.GetFileName(file.Path)} is not ready for analysis.");
         }
 
         if (!SessionFileName.TryParse(file.Path, out var identifier) || identifier is null)
         {
             throw new ArgumentException(
-                $"El nombre {Path.GetFileName(file.Path)} debe incluir el patrón dNúmero rNúmero, por ejemplo d3r4.");
+                $"{Path.GetFileName(file.Path)} must include the dNumber rNumber pattern, for example d3r4.");
         }
 
         var safe = new List<double>();
@@ -85,8 +85,8 @@ internal static class LatencyReviewBuilder
             if (maximumSafe.HasValue && maximumRisk.HasValue &&
                 safe.Count == maximumSafe.Value && risk.Count == maximumRisk.Value)
             {
-                // El protocolo de discriminación termina en el décimo cruce válido:
-                // 7 seguros y 3 peligrosos. Las filas posteriores no se exportan.
+                // The discrimination protocol ends at the tenth valid crossing:
+                // 7 no-conflict and 3 conflict crossings. Later rows are not exported.
                 return row + 1;
             }
         }

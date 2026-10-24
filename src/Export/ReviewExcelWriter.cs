@@ -37,7 +37,7 @@ internal static class ReviewExcelWriter
         IReadOnlyList<RatLatencyReview> reviews,
         CrossingType crossingType)
     {
-        var worksheet = workbook.Worksheets.Add("Resumen");
+        var worksheet = workbook.Worksheets.Add("Summary");
         var title = SessionFileName.GetExperimentName(reviews[0].Source.Path);
         worksheet.Cell(1, 1).Value = title;
         worksheet.Cell(1, 3).Value = crossingType.DisplayName();

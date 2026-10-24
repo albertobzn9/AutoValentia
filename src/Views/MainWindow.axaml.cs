@@ -11,7 +11,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        StatusText.Text = "Aún no hay archivos seleccionados.";
+        StatusText.Text = "No files selected yet.";
         UpdateButtons();
     }
 
@@ -19,11 +19,11 @@ public partial class MainWindow : Window
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Seleccionar archivos MATLAB",
+            Title = "Select MATLAB files",
             AllowMultiple = true,
             FileTypeFilter =
             [
-                new FilePickerFileType("Archivos MATLAB") { Patterns = ["*.mat"] }
+                new FilePickerFileType("MATLAB files") { Patterns = ["*.mat"] }
             ]
         });
 
@@ -46,7 +46,7 @@ public partial class MainWindow : Window
         }
 
         SelectFilesButton.IsEnabled = false;
-        StatusText.Text = "Preparando matrices…";
+        StatusText.Text = "Preparing matrices…";
         try
         {
             var preparedFiles = await Task.Run(() => pathsToPrepare
@@ -79,7 +79,7 @@ public partial class MainWindow : Window
     {
         if (_selectedFiles.Any(file => !file.IsReady))
         {
-            StatusText.Text = "Hay archivos con error. Quítalos de la lista antes de crear el Excel.";
+            StatusText.Text = "Some files contain errors. Remove them before creating the workbook.";
             return;
         }
 
@@ -89,18 +89,18 @@ public partial class MainWindow : Window
             .ToList();
         if (invalidNames.Count > 0)
         {
-            StatusText.Text = "Hay nombres que no incluyen dNúmero rNúmero.";
+            StatusText.Text = "Some file names do not include dNumber rNumber.";
             return;
         }
 
         var destination = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Guardar Excel de revisión",
-            SuggestedFileName = "revision_latencias.xlsx",
+            Title = "Save review workbook",
+            SuggestedFileName = "latency_review.xlsx",
             DefaultExtension = "xlsx",
             FileTypeChoices =
             [
-                new FilePickerFileType("Archivo de Excel") { Patterns = ["*.xlsx"] }
+                new FilePickerFileType("Excel workbook") { Patterns = ["*.xlsx"] }
             ],
             ShowOverwritePrompt = true
         });
@@ -112,20 +112,20 @@ public partial class MainWindow : Window
         var path = destination.TryGetLocalPath();
         if (path is null)
         {
-            StatusText.Text = "No se pudo obtener una ubicación local para guardar el Excel.";
+            StatusText.Text = "Could not get a local path to save the workbook.";
             return;
         }
 
         ExportReviewButton.IsEnabled = false;
-        StatusText.Text = "Creando Excel de revisión…";
+        StatusText.Text = "Creating review workbook…";
         try
         {
             var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
-            StatusText.Text = $"Excel creado: {result.CrossingType.DisplayName()}; {result.DayCount} día(s), {result.RatCount} rata(s).";
+            StatusText.Text = $"Workbook created: {result.CrossingType.DisplayName()}; {result.DayCount} day(s), {result.RatCount} rat(s).";
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"No se pudo crear el Excel: {exception.Message}";
+            StatusText.Text = $"Could not create the workbook: {exception.Message}";
         }
         finally
         {
@@ -143,7 +143,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"No se pudieron crear las gráficas: {exception.Message}";
+            StatusText.Text = $"Could not create the plots: {exception.Message}";
         }
     }
 
@@ -154,10 +154,10 @@ public partial class MainWindow : Window
         var readyCount = _selectedFiles.Count(file => file.IsReady);
         var errorCount = _selectedFiles.Count - readyCount;
         StatusText.Text = _selectedFiles.Count == 0
-            ? "Aún no hay archivos seleccionados."
+            ? "No files selected yet."
             : errorCount == 0
-                ? $"{readyCount} archivo(s) preparado(s) y listo(s) para el Excel."
-                : $"{readyCount} archivo(s) preparado(s); {errorCount} con error.";
+                ? $"{readyCount} file(s) prepared and ready for the workbook."
+                : $"{readyCount} file(s) prepared; {errorCount} with errors.";
         UpdateButtons();
     }
 
