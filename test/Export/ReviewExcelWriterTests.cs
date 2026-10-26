@@ -61,8 +61,11 @@ public sealed class ReviewExcelWriterTests
             Assert.Equal(20d, dayOne.Cell("J7").GetDouble());
             Assert.True(dayOne.Cell("J7").Style.Font.Bold);
             Assert.True(dayOne.Cell("J8").IsEmpty());
-            Assert.Equal("n/a", dayOne.Cell("J9").GetString());
-            Assert.True(dayOne.Cell("J9").Style.Font.Bold);
+            Assert.Equal(15d, dayOne.Cell("J9").GetDouble());
+            Assert.Equal(15d, dayOne.Cell("J10").GetDouble());
+            Assert.True(dayOne.Cell("J10").Style.Font.Bold);
+            Assert.Equal(XLColor.LightYellow, dayOne.Cell("J9").Style.Fill.BackgroundColor);
+            Assert.Equal("Yellow cells are calculated to complete missing conflict thirds.", dayOne.Cell("Y1").GetString());
 
             Assert.Equal("n/a", dayOne.Cell("V3").GetString());
             Assert.True(dayOne.Cell("V3").Style.Font.Bold);
@@ -146,7 +149,7 @@ public sealed class ReviewExcelWriterTests
             {
                 CreateFile("exp_0526_dis_d1r1.mat", (0, 1d), (1, 10d)),
                 CreateFile(
-                    "exp_0526_dis_d2r1.mat",
+                    "exp_0526_dis_d10r1.mat",
                     (0, 1d), (0, 2d), (0, 3d), (0, 4d), (0, 5d), (0, 6d), (0, 7d),
                     (1, 101d), (1, 102d), (1, 103d),
                     (0, 999d), (1, 999d))
@@ -155,7 +158,7 @@ public sealed class ReviewExcelWriterTests
             var result = ReviewExcelWriter.Write(outputPath, files);
 
             using var workbook = new XLWorkbook(outputPath);
-            var finalDay = workbook.Worksheet("d2");
+            var finalDay = workbook.Worksheet("d10");
             Assert.Equal(CrossingType.Discrimination, result.CrossingType);
             Assert.Equal(3d, finalDay.Cell("I5").GetDouble());
             Assert.Equal(2d, finalDay.Cell("I6").GetDouble());

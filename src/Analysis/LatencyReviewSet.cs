@@ -8,6 +8,8 @@ internal sealed record LatencyReviewSet(
 
 internal static class LatencyReviewSetBuilder
 {
+    private const decimal DiscriminationTestDay = 10m;
+
     public static LatencyReviewSet Build(IReadOnlyCollection<PreparedMatFile> files)
     {
         var initialReviews = files
@@ -34,7 +36,7 @@ internal static class LatencyReviewSetBuilder
                 .Select(review =>
                 {
                     var source = TrimDangerCrossingTrials(review.Source, review.Identifier.Day);
-                    return LatencyReviewBuilder.Build(source);
+                    return LatencyReviewBuilder.Build(source, completeDangerBlocks: true);
                 })
                 .ToList();
 
@@ -46,11 +48,11 @@ internal static class LatencyReviewSetBuilder
             return new LatencyReviewSet(initialReviews, crossingType);
         }
 
-        var finalDay = initialReviews.Max(review => review.Identifier.Day);
         var reviews = initialReviews
-            .Select(review => review.Identifier.Day == finalDay
-                ? LatencyReviewBuilder.Build(review.Source, applyDiscriminationFinalDayLimit: true)
-                : review)
+            .Select(review => LatencyReviewBuilder.Build(
+                review.Source,
+                applyDiscriminationFinalDayLimit: review.Identifier.Day == DiscriminationTestDay,
+                completeDangerBlocks: review.Identifier.Day != DiscriminationTestDay))
             .ToList();
 
         return new LatencyReviewSet(reviews, crossingType);

@@ -115,6 +115,15 @@ internal static class ReviewExcelWriter
             WriteRatPanel(worksheet, 1 + index * RatPanelWidth, reviews[index]);
         }
 
+        if (reviews.Any(review => review.Blocks.Any(block => block.DangerCompletion != DangerBlockCompletion.None)))
+        {
+            var note = worksheet.Cell(1, 1 + reviews.Count * RatPanelWidth);
+            note.Value = AppText.CompletedDangerBlockNote;
+            note.Style.Font.Italic = true;
+            note.Style.Fill.BackgroundColor = XLColor.LightYellow;
+            worksheet.Column(note.Address.ColumnNumber).Width = 42;
+        }
+
     }
 
     private static void WriteRatPanel(IXLWorksheet worksheet, int startColumn, RatLatencyReview review)
@@ -133,7 +142,13 @@ internal static class ReviewExcelWriter
         var safeColumn = startColumn + MatrixColumnCount;
         var riskColumn = safeColumn + 1;
         WriteBlockDetails(worksheet, safeColumn, review.Blocks, block => block.Safe, block => block.SafeAverage);
-        WriteBlockDetails(worksheet, riskColumn, review.Blocks, block => block.Risk, block => block.RiskAverage);
+        WriteBlockDetails(
+            worksheet,
+            riskColumn,
+            review.Blocks,
+            block => block.Risk,
+            block => block.RiskAverage,
+            block => block.DangerCompletion != DangerBlockCompletion.None);
 
         var safeAverageColumn = riskColumn + 1;
         var riskAverageColumn = riskColumn + 2;
@@ -149,18 +164,21 @@ internal static class ReviewExcelWriter
         int column,
         IReadOnlyList<LatencyBlock> blocks,
         Func<LatencyBlock, IReadOnlyList<double>> valuesSelector,
-        Func<LatencyBlock, double?> averageSelector)
+        Func<LatencyBlock, double?> averageSelector,
+        Func<LatencyBlock, bool>? isCalculatedSelector = null)
     {
         var row = FirstDataRow;
         for (var blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
         {
-            foreach (var value in valuesSelector(blocks[blockIndex]))
+            var block = blocks[blockIndex];
+            var isCalculated = isCalculatedSelector?.Invoke(block) == true;
+            foreach (var value in valuesSelector(block))
             {
-                WriteNumber(worksheet.Cell(row, column), value);
+                WriteNumber(worksheet.Cell(row, column), value, isCalculated);
                 row++;
             }
 
-            WriteAverage(worksheet.Cell(row, column), averageSelector(blocks[blockIndex]), bold: true);
+            WriteAverage(worksheet.Cell(row, column), averageSelector(block), bold: true, highlight: isCalculated);
             row++;
 
             // The empty row is the visual separation between adjacent thirds.
@@ -171,10 +189,14 @@ internal static class ReviewExcelWriter
         }
     }
 
-    private static void WriteNumber(IXLCell cell, double value)
+    private static void WriteNumber(IXLCell cell, double value, bool highlight = false)
     {
         cell.Value = value;
         cell.Style.NumberFormat.Format = "0.00";
+        if (highlight)
+        {
+            cell.Style.Fill.BackgroundColor = XLColor.LightYellow;
+        }
     }
 
     private static void WriteMatrixNumber(IXLCell cell, double value)
@@ -183,7 +205,7 @@ internal static class ReviewExcelWriter
         cell.Style.NumberFormat.Format = value == Math.Truncate(value) ? "0" : "0.00";
     }
 
-    private static void WriteAverage(IXLCell cell, double? value, bool bold)
+    private static void WriteAverage(IXLCell cell, double? value, bool bold, bool highlight = false)
     {
         if (value is null)
         {
@@ -194,6 +216,10 @@ internal static class ReviewExcelWriter
 
         WriteNumber(cell, value.Value);
         cell.Style.Font.Bold = bold;
+        if (highlight)
+        {
+            cell.Style.Fill.BackgroundColor = XLColor.LightYellow;
+        }
     }
 
     private static void WriteSummaryAverage(IXLCell cell, string references)

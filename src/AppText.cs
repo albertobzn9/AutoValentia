@@ -125,6 +125,9 @@ internal static class AppText
     public static string SummaryWorksheetName => IsSpanish ? "Resumen" : "Summary";
     public static string AverageLabel => IsSpanish ? "promedio" : "average";
     public static string SemLabel => "sem";
+    public static string CompletedDangerBlockNote => IsSpanish
+        ? "Las celdas amarillas se calculan para completar tercios peligrosos faltantes."
+        : "Yellow cells are calculated to complete missing conflict thirds.";
 
     public static void SetLanguage(AppLanguage language)
     {

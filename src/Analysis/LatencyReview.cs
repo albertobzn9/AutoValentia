@@ -2,7 +2,17 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace AutoValentia;
 
-internal sealed record LatencyBlock(IReadOnlyList<double> Safe, IReadOnlyList<double> Risk)
+internal enum DangerBlockCompletion
+{
+    None,
+    RepeatedSingleValue,
+    AverageOfTwoValues
+}
+
+internal sealed record LatencyBlock(
+    IReadOnlyList<double> Safe,
+    IReadOnlyList<double> Risk,
+    DangerBlockCompletion DangerCompletion = DangerBlockCompletion.None)
 {
     public double? SafeAverageRaw => Safe.Count == 0 ? null : Safe.Average();
 
@@ -26,7 +36,10 @@ internal sealed record RatLatencyReview(
 
 internal static class LatencyReviewBuilder
 {
-    public static RatLatencyReview Build(PreparedMatFile file, bool applyDiscriminationFinalDayLimit = false)
+    public static RatLatencyReview Build(
+        PreparedMatFile file,
+        bool applyDiscriminationFinalDayLimit = false,
+        bool completeDangerBlocks = false)
     {
         if (!file.IsReady || file.Matrix is null)
         {
@@ -48,12 +61,41 @@ internal static class LatencyReviewBuilder
             applyDiscriminationFinalDayLimit ? 3 : null);
 
         var safeBlocks = SplitIntoThree(safe);
-        var riskBlocks = SplitIntoThree(risk);
+        var riskBlocks = SplitIntoThree(risk).ToList();
+        var dangerCompletions = new DangerBlockCompletion[3];
+        CompleteMissingDangerBlocks(risk, riskBlocks, dangerCompletions, completeDangerBlocks);
         var blocks = Enumerable.Range(0, 3)
-            .Select(index => new LatencyBlock(safeBlocks[index], riskBlocks[index]))
+            .Select(index => new LatencyBlock(safeBlocks[index], riskBlocks[index], dangerCompletions[index]))
             .ToList();
 
         return new RatLatencyReview(file, identifier, safe, risk, blocks, matrixRowsForExport);
+    }
+
+    private static void CompleteMissingDangerBlocks(
+        IReadOnlyList<double> dangerLatencies,
+        IList<IReadOnlyList<double>> dangerBlocks,
+        DangerBlockCompletion[] dangerCompletions,
+        bool shouldComplete)
+    {
+        if (!shouldComplete)
+        {
+            return;
+        }
+
+        if (dangerLatencies.Count == 1)
+        {
+            dangerBlocks[1] = [dangerLatencies[0]];
+            dangerBlocks[2] = [dangerLatencies[0]];
+            dangerCompletions[1] = DangerBlockCompletion.RepeatedSingleValue;
+            dangerCompletions[2] = DangerBlockCompletion.RepeatedSingleValue;
+            return;
+        }
+
+        if (dangerLatencies.Count == 2)
+        {
+            dangerBlocks[2] = [dangerLatencies.Average()];
+            dangerCompletions[2] = DangerBlockCompletion.AverageOfTwoValues;
+        }
     }
 
     private static int AddEligibleLatencies(
