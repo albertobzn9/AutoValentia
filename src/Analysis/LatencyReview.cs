@@ -30,13 +30,12 @@ internal static class LatencyReviewBuilder
     {
         if (!file.IsReady || file.Matrix is null)
         {
-            throw new ArgumentException($"{Path.GetFileName(file.Path)} is not ready for analysis.");
+            throw new ArgumentException(AppText.FileNotReadyForAnalysis(Path.GetFileName(file.Path)));
         }
 
         if (!SessionFileName.TryParse(file.Path, out var identifier) || identifier is null)
         {
-            throw new ArgumentException(
-                $"{Path.GetFileName(file.Path)} must include the dNumber rNumber pattern, for example d3r4.");
+            throw new ArgumentException(AppText.InvalidSessionFileName(Path.GetFileName(file.Path)));
         }
 
         var safe = new List<double>();

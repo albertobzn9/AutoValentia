@@ -11,19 +11,36 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        StatusText.Text = "No files selected yet.";
+        AppText.LanguageChanged += ApplyLocalizedText;
+        Closed += (_, _) => AppText.LanguageChanged -= ApplyLocalizedText;
+        ApplyLocalizedText();
         UpdateButtons();
+    }
+
+    private void LanguageToggleButton_Click(object? sender, RoutedEventArgs eventArgs) => AppText.ToggleLanguage();
+
+    private void ApplyLocalizedText()
+    {
+        LanguageToggleButton.Content = AppText.LanguageToggleLabel;
+        SubtitleText.Text = AppText.MainSubtitle;
+        SelectFilesHeadingText.Text = AppText.SelectFilesHeading;
+        SelectFilesDescriptionText.Text = AppText.SelectFilesDescription;
+        SelectFilesButton.Content = AppText.SelectMatFilesButton;
+        RemoveButton.Content = AppText.RemoveFromListButton;
+        ExportReviewButton.Content = AppText.CreateWorkbookButton;
+        GraphButton.Content = AppText.ViewPlotsButton;
+        RefreshFiles(FilesListBox.SelectedIndex);
     }
 
     private async void SelectFilesButton_Click(object? sender, RoutedEventArgs eventArgs)
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Select MATLAB files",
+            Title = AppText.SelectMatFilesTitle,
             AllowMultiple = true,
             FileTypeFilter =
             [
-                new FilePickerFileType("MATLAB files") { Patterns = ["*.mat"] }
+                new FilePickerFileType(AppText.MatFiles) { Patterns = ["*.mat"] }
             ]
         });
 
@@ -46,7 +63,7 @@ public partial class MainWindow : Window
         }
 
         SelectFilesButton.IsEnabled = false;
-        StatusText.Text = "Preparing matrices…";
+        StatusText.Text = AppText.PreparingMatrices;
         try
         {
             var preparedFiles = await Task.Run(() => pathsToPrepare
@@ -79,7 +96,7 @@ public partial class MainWindow : Window
     {
         if (_selectedFiles.Any(file => !file.IsReady))
         {
-            StatusText.Text = "Some files contain errors. Remove them before creating the workbook.";
+            StatusText.Text = AppText.FilesContainErrors;
             return;
         }
 
@@ -89,18 +106,18 @@ public partial class MainWindow : Window
             .ToList();
         if (invalidNames.Count > 0)
         {
-            StatusText.Text = "Some file names do not include dNumber rNumber.";
+            StatusText.Text = AppText.InvalidFileNames;
             return;
         }
 
         var destination = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save review workbook",
-            SuggestedFileName = "latency_review.xlsx",
+            Title = AppText.SaveReviewWorkbookTitle,
+            SuggestedFileName = AppText.ReviewWorkbookFileName,
             DefaultExtension = "xlsx",
             FileTypeChoices =
             [
-                new FilePickerFileType("Excel workbook") { Patterns = ["*.xlsx"] }
+                new FilePickerFileType(AppText.ExcelWorkbook) { Patterns = ["*.xlsx"] }
             ],
             ShowOverwritePrompt = true
         });
@@ -112,20 +129,20 @@ public partial class MainWindow : Window
         var path = destination.TryGetLocalPath();
         if (path is null)
         {
-            StatusText.Text = "Could not get a local path to save the workbook.";
+            StatusText.Text = AppText.NoLocalWorkbookPath;
             return;
         }
 
         ExportReviewButton.IsEnabled = false;
-        StatusText.Text = "Creating review workbook…";
+        StatusText.Text = AppText.CreatingWorkbook;
         try
         {
             var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
-            StatusText.Text = $"Workbook created: {result.CrossingType.DisplayName()}; {result.DayCount} day(s), {result.RatCount} rat(s).";
+            StatusText.Text = AppText.WorkbookCreated(result.CrossingType, result.DayCount, result.RatCount);
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"Could not create the workbook: {exception.Message}";
+            StatusText.Text = AppText.CouldNotCreateWorkbook(exception.Message);
         }
         finally
         {
@@ -143,7 +160,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"Could not create the plots: {exception.Message}";
+            StatusText.Text = AppText.CouldNotCreatePlots(exception.Message);
         }
     }
 
@@ -154,10 +171,8 @@ public partial class MainWindow : Window
         var readyCount = _selectedFiles.Count(file => file.IsReady);
         var errorCount = _selectedFiles.Count - readyCount;
         StatusText.Text = _selectedFiles.Count == 0
-            ? "No files selected yet."
-            : errorCount == 0
-                ? $"{readyCount} file(s) prepared and ready for the workbook."
-                : $"{readyCount} file(s) prepared; {errorCount} with errors.";
+            ? AppText.NoFilesSelected
+            : AppText.PreparedFilesSummary(readyCount, errorCount);
         UpdateButtons();
     }
 

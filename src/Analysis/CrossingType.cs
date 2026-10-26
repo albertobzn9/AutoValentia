@@ -11,9 +11,9 @@ internal static class CrossingTypeExtensions
 {
     public static string DisplayName(this CrossingType crossingType) => crossingType switch
     {
-        CrossingType.SafeCrossings => "No-conflict crossings",
-        CrossingType.DangerCrossings => "Conflict crossings",
-        CrossingType.Discrimination => "Discrimination",
+        CrossingType.SafeCrossings => AppText.SafeCrossings,
+        CrossingType.DangerCrossings => AppText.DangerCrossings,
+        CrossingType.Discrimination => AppText.Discrimination,
         _ => throw new ArgumentOutOfRangeException(nameof(crossingType))
     };
 }
@@ -30,7 +30,7 @@ internal static class CrossingTypeDetector
             (true, false) => CrossingType.SafeCrossings,
             (false, true) => CrossingType.DangerCrossings,
             (true, true) => CrossingType.Discrimination,
-            _ => throw new InvalidOperationException("No trials with valid movement are available for analysis.")
+            _ => throw new InvalidOperationException(AppText.NoValidTrials)
         };
     }
 }

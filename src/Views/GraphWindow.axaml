@@ -34,7 +34,7 @@
                   Background="#218739"
                   CornerRadius="7"
                   VerticalAlignment="Center" />
-          <TextBlock Text="No-conflict crossings" VerticalAlignment="Center" />
+          <TextBlock x:Name="SafeLegendText" VerticalAlignment="Center" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="7">
           <Border Width="14"
@@ -42,16 +42,16 @@
                   Background="Black"
                   CornerRadius="7"
                   VerticalAlignment="Center" />
-          <TextBlock Text="Conflict crossings" VerticalAlignment="Center" />
+          <TextBlock x:Name="DangerLegendText" VerticalAlignment="Center" />
         </StackPanel>
-        <TextBlock Text="Error bars show the standard error of the mean (SEM)."
+        <TextBlock x:Name="SemDescriptionText"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                    VerticalAlignment="Center" />
       </StackPanel>
 
-      <Button Grid.Column="1"
+      <Button x:Name="ExportImageButton"
+              Grid.Column="1"
               Padding="14,8"
-              Content="Export PNG image…"
               Click="ExportImageButton_Click" />
     </Grid>
 

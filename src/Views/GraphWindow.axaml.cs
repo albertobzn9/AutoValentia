@@ -13,6 +13,9 @@ public partial class GraphWindow : Window
     public GraphWindow()
     {
         InitializeComponent();
+        AppText.LanguageChanged += ApplyLocalizedText;
+        Closed += (_, _) => AppText.LanguageChanged -= ApplyLocalizedText;
+        ApplyLocalizedText();
     }
 
     public GraphWindow(GraphAnalysis analysis)
@@ -26,12 +29,12 @@ public partial class GraphWindow : Window
     {
         var destination = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Save plot as image",
-            SuggestedFileName = $"latencies-{GetFileNameSuffix()}.png",
+            Title = AppText.SavePlotTitle,
+            SuggestedFileName = $"{AppText.PlotFileNamePrefix}-{GetFileNameSuffix()}.png",
             DefaultExtension = "png",
             FileTypeChoices =
             [
-                new FilePickerFileType("PNG image") { Patterns = ["*.png"] }
+                new FilePickerFileType(AppText.PngImage) { Patterns = ["*.png"] }
             ],
             ShowOverwritePrompt = true
         });
@@ -44,7 +47,7 @@ public partial class GraphWindow : Window
         var path = destination.TryGetLocalPath();
         if (path is null)
         {
-            ExportStatusText.Text = "Could not get a local path to save the image.";
+            ExportStatusText.Text = AppText.NoLocalImagePath;
             return;
         }
 
@@ -59,11 +62,11 @@ public partial class GraphWindow : Window
             // so the PNG uses proportional text and line weights.
             ConfigurePlot(forExport: true);
             LatencyPlot.Plot.SavePng(path, 1600, 1000);
-            ExportStatusText.Text = $"PNG image saved: {Path.GetFileName(path)}";
+            ExportStatusText.Text = AppText.PngImageSaved(Path.GetFileName(path));
         }
         catch (Exception exception)
         {
-            ExportStatusText.Text = $"Could not save the image: {exception.Message}";
+            ExportStatusText.Text = AppText.CouldNotSaveImage(exception.Message);
         }
         finally
         {
@@ -73,10 +76,10 @@ public partial class GraphWindow : Window
 
     private void ConfigurePlot(bool forExport = false)
     {
-        var analysis = _analysis ?? throw new InvalidOperationException("No data available to plot.");
+        var analysis = _analysis ?? throw new InvalidOperationException(AppText.NoDataToPlot);
 
-        TitleText.Text = $"Latencies: {analysis.CrossingType.DisplayName()}";
-        SubtitleText.Text = "Each point is the daily mean across rats; the three points correspond to the chronological thirds of the protocol.";
+        TitleText.Text = AppText.LatenciesTitle(analysis.CrossingType);
+        SubtitleText.Text = AppText.PlotSubtitle;
 
         var plot = LatencyPlot.Plot;
         plot.Clear();
@@ -103,8 +106,8 @@ public partial class GraphWindow : Window
 
         plot.Axes.Bottom.TickGenerator = new NumericManual(tickPositions, tickLabels);
         plot.Axes.Left.TickGenerator = new NumericManual(yTickPositions, yTickLabels);
-        plot.Axes.Bottom.Label.Text = "Days (trial blocks)";
-        plot.Axes.Left.Label.Text = "Latencies (s)";
+        plot.Axes.Bottom.Label.Text = AppText.DayAxisLabel;
+        plot.Axes.Left.Label.Text = AppText.LatencyAxisLabel;
         plot.Axes.SetLimitsY(0, yMaximum);
         plot.Axes.SetLimitsX(0.25, Math.Max(3.75, days.Count * 4d - 0.25));
         plot.Title(analysis.CrossingType.DisplayName());
@@ -155,7 +158,7 @@ public partial class GraphWindow : Window
             MarkerLineColor = Colors.Green,
             MarkerShape = MarkerShape.FilledCircle,
             LineWidth = lineWidth,
-            LabelText = "No-conflict crossings"
+            LabelText = AppText.SafeCrossings
         },
         new LegendItem
         {
@@ -164,7 +167,7 @@ public partial class GraphWindow : Window
             MarkerLineColor = Colors.Black,
             MarkerShape = MarkerShape.FilledCircle,
             LineWidth = lineWidth,
-            LabelText = "Conflict crossings"
+            LabelText = AppText.DangerCrossings
         }
     ];
 
@@ -206,9 +209,23 @@ public partial class GraphWindow : Window
 
     private string GetFileNameSuffix() => _analysis?.CrossingType switch
     {
-        CrossingType.SafeCrossings => "no-conflict-crossings",
-        CrossingType.DangerCrossings => "conflict-crossings",
+        CrossingType.SafeCrossings => AppText.CurrentLanguage == AppLanguage.Spanish ? "cruces-seguros" : "no-conflict-crossings",
+        CrossingType.DangerCrossings => AppText.CurrentLanguage == AppLanguage.Spanish ? "cruces-peligrosos" : "conflict-crossings",
         CrossingType.Discrimination => "discrimination",
-        _ => "latencies"
+        _ => AppText.CurrentLanguage == AppLanguage.Spanish ? "latencias" : "latencies"
     };
+
+    private void ApplyLocalizedText()
+    {
+        Title = AppText.LatencyPlotsTitle;
+        SafeLegendText.Text = AppText.SafeCrossings;
+        DangerLegendText.Text = AppText.DangerCrossings;
+        SemDescriptionText.Text = AppText.SemDescription;
+        ExportImageButton.Content = AppText.ExportPngButton;
+
+        if (_analysis is not null)
+        {
+            ConfigurePlot();
+        }
+    }
 }

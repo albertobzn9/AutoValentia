@@ -22,10 +22,10 @@ internal sealed record PreparedMatFile(
 
         if (Matrix is null)
         {
-            return $"○  {name} — pending";
+            return $"○  {name} — {AppText.Pending}";
         }
 
-        return $"✓  {name} — {Matrix.RowCount} rows prepared";
+        return $"✓  {name} — {AppText.RowsPrepared(Matrix.RowCount)}";
     }
 }
 
@@ -45,7 +45,7 @@ internal static class MatFileReader
             var matrixVariable = variables.SingleOrDefault(variable => variable.Name == MatrixName);
             if (matrixVariable is null)
             {
-                return new PreparedMatFile(path, Error: "Does not contain the Resultados matrix.");
+                return new PreparedMatFile(path, Error: AppText.MissingResultadosMatrix);
             }
 
             var source = MatlabReader.Unpack<double>(matrixVariable);
@@ -55,7 +55,7 @@ internal static class MatFileReader
                 9 => NormalizeNineColumnMatrix(path, source),
                 _ => new PreparedMatFile(
                     path,
-                    Error: "The file format is not supported.")
+                    Error: AppText.UnsupportedFileFormat)
             };
         }
         catch (Exception exception)
