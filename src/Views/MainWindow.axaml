@@ -9,11 +9,19 @@
         MinHeight="540"
         WindowStartupLocation="CenterScreen">
   <Grid Margin="28" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="18">
-    <StackPanel Spacing="5">
-      <TextBlock FontSize="30" FontWeight="SemiBold" Text="AutoValentia" />
-      <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                 Text="Preparación y revisión de ensayos conductuales." />
-    </StackPanel>
+    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+      <StackPanel Spacing="5">
+        <TextBlock FontSize="30" FontWeight="SemiBold" Text="AutoValentia" />
+        <TextBlock x:Name="SubtitleText"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      </StackPanel>
+      <ToggleSwitch x:Name="LanguageToggleSwitch"
+                    Grid.Column="1"
+                    OffContent="English"
+                    OnContent="Español"
+                    VerticalAlignment="Top"
+                    IsCheckedChanged="LanguageToggleSwitch_IsCheckedChanged" />
+    </Grid>
 
     <Border Grid.Row="1"
             Padding="16"
@@ -22,9 +30,9 @@
             BorderThickness="1"
             CornerRadius="8">
       <StackPanel Spacing="6">
-        <TextBlock FontWeight="SemiBold" Text="1. Selecciona los archivos MATLAB" />
-        <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                   Text="La app prepara automáticamente los archivos seleccionados para crear el Excel de revisión." />
+        <TextBlock x:Name="SelectFilesHeadingText" FontWeight="SemiBold" />
+        <TextBlock x:Name="SelectFilesDescriptionText"
+                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
       </StackPanel>
     </Border>
 
@@ -41,10 +49,10 @@
       </Border>
 
       <StackPanel Grid.Column="1" Spacing="9" VerticalAlignment="Top">
-        <Button x:Name="SelectFilesButton" MinWidth="180" Click="SelectFilesButton_Click" Content="Seleccionar .mat…" />
-        <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" Content="Quitar de la lista" />
-        <Button x:Name="ExportReviewButton" MinWidth="180" Click="ExportReviewButton_Click" Content="Crear Excel de revisión…" />
-        <Button x:Name="GraphButton" MinWidth="180" Click="GraphButton_Click" Content="Ver gráficas…" />
+        <Button x:Name="SelectFilesButton" MinWidth="180" Click="SelectFilesButton_Click" />
+        <Button x:Name="RemoveButton" MinWidth="180" Click="RemoveButton_Click" />
+        <Button x:Name="ExportReviewButton" MinWidth="180" Click="ExportReviewButton_Click" />
+        <Button x:Name="GraphButton" MinWidth="180" Click="GraphButton_Click" />
       </StackPanel>
     </Grid>
 

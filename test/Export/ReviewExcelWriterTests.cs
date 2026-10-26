@@ -22,11 +22,11 @@ public sealed class ReviewExcelWriterTests
             ReviewExcelWriter.Write(outputPath, files);
 
             using var workbook = new XLWorkbook(outputPath);
-            Assert.Equal(new[] { "Resumen", "d1", "d2" }, workbook.Worksheets.Select(sheet => sheet.Name));
+            Assert.Equal(new[] { "Summary", "d1", "d2" }, workbook.Worksheets.Select(sheet => sheet.Name));
 
-            var summary = workbook.Worksheet("Resumen");
+            var summary = workbook.Worksheet("Summary");
             Assert.Equal("exp_0526_dis", summary.Cell("A1").GetString());
-            Assert.Equal("Discriminación", summary.Cell("C1").GetString());
+            Assert.Equal("Discrimination", summary.Cell("C1").GetString());
             Assert.Equal("d1r1", summary.Cell("A2").GetString());
             Assert.Equal("d2r1", summary.Cell("C2").GetString());
             Assert.Equal("d1r2", summary.Cell("A6").GetString());
@@ -94,7 +94,7 @@ public sealed class ReviewExcelWriterTests
 
         Assert.DoesNotContain("columna", preparedFile.ToString(), StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("9", preparedFile.ToString());
-        Assert.Equal("✓  exp_0526_dis_d1r1.mat — 2 filas preparadas", preparedFile.ToString());
+        Assert.Equal("✓  exp_0526_dis_d1r1.mat — 2 rows prepared", preparedFile.ToString());
     }
 
     [Fact]
@@ -121,8 +121,8 @@ public sealed class ReviewExcelWriterTests
 
             using var workbook = new XLWorkbook(outputPath);
             Assert.Equal(CrossingType.DangerCrossings, result.CrossingType);
-            Assert.Equal("Cruces peligrosos", workbook.Worksheet("Resumen").Cell("C1").GetString());
-            Assert.Equal("n/a", workbook.Worksheet("Resumen").Cell("A3").GetString());
+            Assert.Equal("Conflict crossings", workbook.Worksheet("Summary").Cell("C1").GetString());
+            Assert.Equal("n/a", workbook.Worksheet("Summary").Cell("A3").GetString());
             Assert.Equal("n/a", workbook.Worksheet("d1").Cell("I3").GetString());
             Assert.Equal("n/a", workbook.Worksheet("d1").Cell("K3").GetString());
             Assert.Equal(10d, workbook.Worksheet("d1").Cell("J3").GetDouble());

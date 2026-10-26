@@ -11,19 +11,37 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        StatusText.Text = "Aún no hay archivos seleccionados.";
+        AppText.LanguageChanged += ApplyLocalizedText;
+        Closed += (_, _) => AppText.LanguageChanged -= ApplyLocalizedText;
+        ApplyLocalizedText();
         UpdateButtons();
+    }
+
+    private void LanguageToggleSwitch_IsCheckedChanged(object? sender, RoutedEventArgs eventArgs) =>
+        AppText.SetLanguage(LanguageToggleSwitch.IsChecked == true ? AppLanguage.Spanish : AppLanguage.English);
+
+    private void ApplyLocalizedText()
+    {
+        LanguageToggleSwitch.IsChecked = AppText.CurrentLanguage == AppLanguage.Spanish;
+        SubtitleText.Text = AppText.MainSubtitle;
+        SelectFilesHeadingText.Text = AppText.SelectFilesHeading;
+        SelectFilesDescriptionText.Text = AppText.SelectFilesDescription;
+        SelectFilesButton.Content = AppText.SelectMatFilesButton;
+        RemoveButton.Content = AppText.RemoveFromListButton;
+        ExportReviewButton.Content = AppText.CreateWorkbookButton;
+        GraphButton.Content = AppText.ViewPlotsButton;
+        RefreshFiles(FilesListBox.SelectedIndex);
     }
 
     private async void SelectFilesButton_Click(object? sender, RoutedEventArgs eventArgs)
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Seleccionar archivos MATLAB",
+            Title = AppText.SelectMatFilesTitle,
             AllowMultiple = true,
             FileTypeFilter =
             [
-                new FilePickerFileType("Archivos MATLAB") { Patterns = ["*.mat"] }
+                new FilePickerFileType(AppText.MatFiles) { Patterns = ["*.mat"] }
             ]
         });
 
@@ -46,7 +64,7 @@ public partial class MainWindow : Window
         }
 
         SelectFilesButton.IsEnabled = false;
-        StatusText.Text = "Preparando matrices…";
+        StatusText.Text = AppText.PreparingMatrices;
         try
         {
             var preparedFiles = await Task.Run(() => pathsToPrepare
@@ -79,7 +97,7 @@ public partial class MainWindow : Window
     {
         if (_selectedFiles.Any(file => !file.IsReady))
         {
-            StatusText.Text = "Hay archivos con error. Quítalos de la lista antes de crear el Excel.";
+            StatusText.Text = AppText.FilesContainErrors;
             return;
         }
 
@@ -89,18 +107,18 @@ public partial class MainWindow : Window
             .ToList();
         if (invalidNames.Count > 0)
         {
-            StatusText.Text = "Hay nombres que no incluyen dNúmero rNúmero.";
+            StatusText.Text = AppText.InvalidFileNames;
             return;
         }
 
         var destination = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Guardar Excel de revisión",
-            SuggestedFileName = "revision_latencias.xlsx",
+            Title = AppText.SaveReviewWorkbookTitle,
+            SuggestedFileName = AppText.ReviewWorkbookFileName,
             DefaultExtension = "xlsx",
             FileTypeChoices =
             [
-                new FilePickerFileType("Archivo de Excel") { Patterns = ["*.xlsx"] }
+                new FilePickerFileType(AppText.ExcelWorkbook) { Patterns = ["*.xlsx"] }
             ],
             ShowOverwritePrompt = true
         });
@@ -112,20 +130,20 @@ public partial class MainWindow : Window
         var path = destination.TryGetLocalPath();
         if (path is null)
         {
-            StatusText.Text = "No se pudo obtener una ubicación local para guardar el Excel.";
+            StatusText.Text = AppText.NoLocalWorkbookPath;
             return;
         }
 
         ExportReviewButton.IsEnabled = false;
-        StatusText.Text = "Creando Excel de revisión…";
+        StatusText.Text = AppText.CreatingWorkbook;
         try
         {
             var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
-            StatusText.Text = $"Excel creado: {result.CrossingType.DisplayName()}; {result.DayCount} día(s), {result.RatCount} rata(s).";
+            StatusText.Text = AppText.WorkbookCreated(result.CrossingType, result.DayCount, result.RatCount);
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"No se pudo crear el Excel: {exception.Message}";
+            StatusText.Text = AppText.CouldNotCreateWorkbook(exception.Message);
         }
         finally
         {
@@ -143,7 +161,7 @@ public partial class MainWindow : Window
         }
         catch (Exception exception)
         {
-            StatusText.Text = $"No se pudieron crear las gráficas: {exception.Message}";
+            StatusText.Text = AppText.CouldNotCreatePlots(exception.Message);
         }
     }
 
@@ -154,10 +172,8 @@ public partial class MainWindow : Window
         var readyCount = _selectedFiles.Count(file => file.IsReady);
         var errorCount = _selectedFiles.Count - readyCount;
         StatusText.Text = _selectedFiles.Count == 0
-            ? "Aún no hay archivos seleccionados."
-            : errorCount == 0
-                ? $"{readyCount} archivo(s) preparado(s) y listo(s) para el Excel."
-                : $"{readyCount} archivo(s) preparado(s); {errorCount} con error.";
+            ? AppText.NoFilesSelected
+            : AppText.PreparedFilesSummary(readyCount, errorCount);
         UpdateButtons();
     }
 

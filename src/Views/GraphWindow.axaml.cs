@@ -13,6 +13,9 @@ public partial class GraphWindow : Window
     public GraphWindow()
     {
         InitializeComponent();
+        AppText.LanguageChanged += ApplyLocalizedText;
+        Closed += (_, _) => AppText.LanguageChanged -= ApplyLocalizedText;
+        ApplyLocalizedText();
     }
 
     public GraphWindow(GraphAnalysis analysis)
@@ -26,12 +29,12 @@ public partial class GraphWindow : Window
     {
         var destination = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "Guardar gráfica como imagen",
-            SuggestedFileName = $"latencias-{GetFileNameSuffix()}.png",
+            Title = AppText.SavePlotTitle,
+            SuggestedFileName = $"{AppText.PlotFileNamePrefix}-{GetFileNameSuffix()}.png",
             DefaultExtension = "png",
             FileTypeChoices =
             [
-                new FilePickerFileType("Imagen PNG") { Patterns = ["*.png"] }
+                new FilePickerFileType(AppText.PngImage) { Patterns = ["*.png"] }
             ],
             ShowOverwritePrompt = true
         });
@@ -44,7 +47,7 @@ public partial class GraphWindow : Window
         var path = destination.TryGetLocalPath();
         if (path is null)
         {
-            ExportStatusText.Text = "No se pudo obtener una ubicación local para guardar la imagen.";
+            ExportStatusText.Text = AppText.NoLocalImagePath;
             return;
         }
 
@@ -55,15 +58,15 @@ public partial class GraphWindow : Window
 
         try
         {
-            // ScottPlot conserva los tamaños en píxeles al exportar. Se vuelve a
-            // configurar temporalmente para que el PNG tenga textos y trazos proporcionales.
+            // ScottPlot preserves pixel sizes when exporting. Configure it temporarily
+            // so the PNG uses proportional text and line weights.
             ConfigurePlot(forExport: true);
             LatencyPlot.Plot.SavePng(path, 1600, 1000);
-            ExportStatusText.Text = $"Imagen PNG guardada: {Path.GetFileName(path)}";
+            ExportStatusText.Text = AppText.PngImageSaved(Path.GetFileName(path));
         }
         catch (Exception exception)
         {
-            ExportStatusText.Text = $"No se pudo guardar la imagen: {exception.Message}";
+            ExportStatusText.Text = AppText.CouldNotSaveImage(exception.Message);
         }
         finally
         {
@@ -73,10 +76,10 @@ public partial class GraphWindow : Window
 
     private void ConfigurePlot(bool forExport = false)
     {
-        var analysis = _analysis ?? throw new InvalidOperationException("No hay datos para graficar.");
+        var analysis = _analysis ?? throw new InvalidOperationException(AppText.NoDataToPlot);
 
-        TitleText.Text = $"Latencias: {analysis.CrossingType.DisplayName()}";
-        SubtitleText.Text = "Cada punto es el promedio de las ratas del día; los tres puntos corresponden a los tercios cronológicos del protocolo.";
+        TitleText.Text = AppText.LatenciesTitle(analysis.CrossingType);
+        SubtitleText.Text = AppText.PlotSubtitle;
 
         var plot = LatencyPlot.Plot;
         plot.Clear();
@@ -103,8 +106,8 @@ public partial class GraphWindow : Window
 
         plot.Axes.Bottom.TickGenerator = new NumericManual(tickPositions, tickLabels);
         plot.Axes.Left.TickGenerator = new NumericManual(yTickPositions, yTickLabels);
-        plot.Axes.Bottom.Label.Text = "Días (bloques de ensayo)";
-        plot.Axes.Left.Label.Text = "Latencias (s)";
+        plot.Axes.Bottom.Label.Text = AppText.DayAxisLabel;
+        plot.Axes.Left.Label.Text = AppText.LatencyAxisLabel;
         plot.Axes.SetLimitsY(0, yMaximum);
         plot.Axes.SetLimitsX(0.25, Math.Max(3.75, days.Count * 4d - 0.25));
         plot.Title(analysis.CrossingType.DisplayName());
@@ -121,9 +124,9 @@ public partial class GraphWindow : Window
         var legendFontSize = forExport ? 20 : 14;
         var lineWidth = forExport ? 3 : 2;
 
-        // Helvetica (el valor predeterminado en macOS) tiene métricas que
-        // desplazan los glifos fuera del área de recorte en ScottPlot 5.1.59.
-        // Arial conserva el texto completo tanto en pantalla como al exportar.
+        // Helvetica (the default on macOS) has metrics that shift glyphs outside
+        // the clipping area in ScottPlot 5.1.59. Arial preserves full text both
+        // on screen and in exported images.
         plot.Axes.Bottom.TickLabelStyle.FontName = "Arial";
         plot.Axes.Left.TickLabelStyle.FontName = "Arial";
         plot.Axes.Bottom.Label.FontName = "Arial";
@@ -135,7 +138,7 @@ public partial class GraphWindow : Window
         plot.Axes.Left.Label.FontSize = axisFontSize;
         plot.Axes.Title.Label.FontSize = titleFontSize;
 
-        // Reemplaza los elementos de la misma leyenda en cada exportación.
+        // Replaces the same legend items on every export.
         plot.ShowLegend(CreateLegendItems(lineWidth), Alignment.UpperLeft);
         plot.Legend.FontName = "Arial";
         plot.Legend.FontSize = legendFontSize;
@@ -155,7 +158,7 @@ public partial class GraphWindow : Window
             MarkerLineColor = Colors.Green,
             MarkerShape = MarkerShape.FilledCircle,
             LineWidth = lineWidth,
-            LabelText = "Cruces seguros"
+            LabelText = AppText.SafeCrossings
         },
         new LegendItem
         {
@@ -164,7 +167,7 @@ public partial class GraphWindow : Window
             MarkerLineColor = Colors.Black,
             MarkerShape = MarkerShape.FilledCircle,
             LineWidth = lineWidth,
-            LabelText = "Cruces peligrosos"
+            LabelText = AppText.DangerCrossings
         }
     ];
 
@@ -206,9 +209,23 @@ public partial class GraphWindow : Window
 
     private string GetFileNameSuffix() => _analysis?.CrossingType switch
     {
-        CrossingType.SafeCrossings => "cruces-seguros",
-        CrossingType.DangerCrossings => "cruces-peligrosos",
-        CrossingType.Discrimination => "discriminacion",
-        _ => "latencias"
+        CrossingType.SafeCrossings => AppText.CurrentLanguage == AppLanguage.Spanish ? "cruces-seguros" : "no-conflict-crossings",
+        CrossingType.DangerCrossings => AppText.CurrentLanguage == AppLanguage.Spanish ? "cruces-peligrosos" : "conflict-crossings",
+        CrossingType.Discrimination => "discrimination",
+        _ => AppText.CurrentLanguage == AppLanguage.Spanish ? "latencias" : "latencies"
     };
+
+    private void ApplyLocalizedText()
+    {
+        Title = AppText.LatencyPlotsTitle;
+        SafeLegendText.Text = AppText.SafeCrossings;
+        DangerLegendText.Text = AppText.DangerCrossings;
+        SemDescriptionText.Text = AppText.SemDescription;
+        ExportImageButton.Content = AppText.ExportPngButton;
+
+        if (_analysis is not null)
+        {
+            ConfigurePlot();
+        }
+    }
 }

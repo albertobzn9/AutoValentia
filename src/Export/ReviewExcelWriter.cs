@@ -37,7 +37,7 @@ internal static class ReviewExcelWriter
         IReadOnlyList<RatLatencyReview> reviews,
         CrossingType crossingType)
     {
-        var worksheet = workbook.Worksheets.Add("Resumen");
+        var worksheet = workbook.Worksheets.Add(AppText.SummaryWorksheetName);
         var title = SessionFileName.GetExperimentName(reviews[0].Source.Path);
         worksheet.Cell(1, 1).Value = title;
         worksheet.Cell(1, 3).Value = crossingType.DisplayName();
@@ -76,7 +76,7 @@ internal static class ReviewExcelWriter
         IReadOnlyList<int> rats)
     {
         var averageLabelRow = 2 + rats.Count * 4;
-        worksheet.Cell(averageLabelRow, 1).Value = "average";
+        worksheet.Cell(averageLabelRow, 1).Value = AppText.AverageLabel;
 
         for (var blockIndex = 0; blockIndex < 3; blockIndex++)
         {
@@ -97,7 +97,7 @@ internal static class ReviewExcelWriter
             }
         }
 
-        worksheet.Cell(averageLabelRow + 4, 1).Value = "sem";
+        worksheet.Cell(averageLabelRow + 4, 1).Value = AppText.SemLabel;
     }
 
     private static void WriteDaySheet(

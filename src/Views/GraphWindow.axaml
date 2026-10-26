@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:scottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
         x:Class="AutoValentia.GraphWindow"
-        Title="Gráficas de latencias"
+        Title="Latency plots"
         Icon="/Assets/AutoValentia.ico"
         Width="1050"
         Height="720"
@@ -34,7 +34,7 @@
                   Background="#218739"
                   CornerRadius="7"
                   VerticalAlignment="Center" />
-          <TextBlock Text="Cruces seguros" VerticalAlignment="Center" />
+          <TextBlock x:Name="SafeLegendText" VerticalAlignment="Center" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="7">
           <Border Width="14"
@@ -42,16 +42,16 @@
                   Background="Black"
                   CornerRadius="7"
                   VerticalAlignment="Center" />
-          <TextBlock Text="Cruces peligrosos" VerticalAlignment="Center" />
+          <TextBlock x:Name="DangerLegendText" VerticalAlignment="Center" />
         </StackPanel>
-        <TextBlock Text="Las barras muestran el error estándar de la media (SEM)."
+        <TextBlock x:Name="SemDescriptionText"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                    VerticalAlignment="Center" />
       </StackPanel>
 
-      <Button Grid.Column="1"
+      <Button x:Name="ExportImageButton"
+              Grid.Column="1"
               Padding="14,8"
-              Content="Exportar imagen PNG…"
               Click="ExportImageButton_Click" />
     </Grid>
 
