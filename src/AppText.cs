@@ -63,6 +63,10 @@ internal static class AppText
         : IsSpanish
             ? $"{readyCount} archivo(s) preparado(s); {errorCount} con error."
             : $"{readyCount} file(s) prepared; {errorCount} with errors.";
+    public static string SingleDiscriminationDayWarning => IsSpanish
+        ? "Advertencia: solo se cargó un día de discriminación. Se tratará como el último día."
+        : "Warning: only one discrimination day is loaded. It will be treated as the final day.";
+    public static string WithWarning(string status, string? warning) => warning is null ? status : $"{status} {warning}";
 
     public static string LatencyPlotsTitle => IsSpanish ? "Gráficas de latencias" : "Latency plots";
     public static string SafeCrossings => IsSpanish ? "Cruces seguros" : "No-conflict crossings";

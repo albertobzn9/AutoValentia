@@ -16,7 +16,8 @@ public sealed record GraphPoint(
 
 public sealed record GraphAnalysis(
     CrossingType CrossingType,
-    IReadOnlyList<GraphPoint> Points);
+    IReadOnlyList<GraphPoint> Points,
+    string? Warning = null);
 
 internal static class GraphAnalysisBuilder
 {
@@ -37,7 +38,7 @@ internal static class GraphAnalysisBuilder
             }
         }
 
-        return new GraphAnalysis(crossingType, points);
+        return new GraphAnalysis(crossingType, points, reviewSet.Warning);
     }
 
     private static GraphPoint BuildPoint(

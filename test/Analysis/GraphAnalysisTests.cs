@@ -65,7 +65,7 @@ public sealed class GraphAnalysisTests
                 (0, 10d), (0, 11d), (0, 12d), (0, 13d), (0, 14d), (0, 15d), (0, 16d), (0, 17d),
                 (1, 100d), (1, 101d), (1, 102d), (1, 103d)),
             CreateDiscriminationFile(
-                "exp_0526_dis_d10r1.mat",
+                "exp_0526_dis_d2r1.mat",
                 (0, 1d), (0, 2d), (0, 3d), (0, 4d), (0, 5d), (0, 6d), (0, 7d),
                 (1, 101d), (1, 102d), (1, 103d),
                 (0, 999d), (1, 999d))
@@ -76,12 +76,12 @@ public sealed class GraphAnalysisTests
         Assert.Equal(CrossingType.Discrimination, analysis.CrossingType);
         Assert.Equal(16.5d, Point(analysis, 1, 3, GraphCondition.Safe).Mean);
         Assert.Equal(103d, Point(analysis, 1, 3, GraphCondition.Danger).Mean);
-        Assert.Equal(2d, Point(analysis, 10, 1, GraphCondition.Safe).Mean);
-        Assert.Equal(4.5d, Point(analysis, 10, 2, GraphCondition.Safe).Mean);
-        Assert.Equal(6.5d, Point(analysis, 10, 3, GraphCondition.Safe).Mean);
-        Assert.Equal(101d, Point(analysis, 10, 1, GraphCondition.Danger).Mean);
-        Assert.Equal(102d, Point(analysis, 10, 2, GraphCondition.Danger).Mean);
-        Assert.Equal(103d, Point(analysis, 10, 3, GraphCondition.Danger).Mean);
+        Assert.Equal(2d, Point(analysis, 2, 1, GraphCondition.Safe).Mean);
+        Assert.Equal(4.5d, Point(analysis, 2, 2, GraphCondition.Safe).Mean);
+        Assert.Equal(6.5d, Point(analysis, 2, 3, GraphCondition.Safe).Mean);
+        Assert.Equal(101d, Point(analysis, 2, 1, GraphCondition.Danger).Mean);
+        Assert.Equal(102d, Point(analysis, 2, 2, GraphCondition.Danger).Mean);
+        Assert.Equal(103d, Point(analysis, 2, 3, GraphCondition.Danger).Mean);
     }
 
     [Fact]
@@ -126,12 +126,13 @@ public sealed class GraphAnalysisTests
     }
 
     [Fact]
-    public void Build_completes_missing_danger_thirds_on_a_discrimination_day_before_d10()
+    public void Build_completes_missing_danger_thirds_on_a_discrimination_day_before_the_last_uploaded_day()
     {
         var files = new[]
         {
             CreateDiscriminationFile("exp_0526_dis_d1r1.mat", (0, 1d), (1, 10d)),
-            CreateDiscriminationFile("exp_0526_dis_d1r2.mat", (0, 2d), (1, 20d), (1, 40d))
+            CreateDiscriminationFile("exp_0526_dis_d1r2.mat", (0, 2d), (1, 20d), (1, 40d)),
+            CreateDiscriminationFile("exp_0526_dis_d2r1.mat", (0, 3d), (1, 100d), (1, 101d), (1, 102d))
         };
 
         var analysis = GraphAnalysisBuilder.Build(files);
@@ -140,6 +141,22 @@ public sealed class GraphAnalysisTests
         Assert.Equal(15d, Point(analysis, 1, 1, GraphCondition.Danger).Mean);
         Assert.Equal(25d, Point(analysis, 1, 2, GraphCondition.Danger).Mean);
         Assert.Equal(20d, Point(analysis, 1, 3, GraphCondition.Danger).Mean);
+    }
+
+    [Fact]
+    public void Build_warns_when_a_single_discrimination_day_is_treated_as_final()
+    {
+        var files = new[]
+        {
+            CreateDiscriminationFile("exp_0526_dis_d1r1.mat", (0, 1d), (1, 10d))
+        };
+
+        var analysis = GraphAnalysisBuilder.Build(files);
+
+        Assert.Equal(AppText.SingleDiscriminationDayWarning, analysis.Warning);
+        Assert.Equal(10d, Point(analysis, 1, 1, GraphCondition.Danger).Mean);
+        Assert.Null(Point(analysis, 1, 2, GraphCondition.Danger).Mean);
+        Assert.Null(Point(analysis, 1, 3, GraphCondition.Danger).Mean);
     }
 
     private static GraphPoint Point(GraphAnalysis analysis, decimal day, int block, GraphCondition condition) =>

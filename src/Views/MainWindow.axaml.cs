@@ -139,7 +139,9 @@ public partial class MainWindow : Window
         try
         {
             var result = await Task.Run(() => ReviewExcelWriter.Write(path, _selectedFiles));
-            StatusText.Text = AppText.WorkbookCreated(result.CrossingType, result.DayCount, result.RatCount);
+            StatusText.Text = AppText.WithWarning(
+                AppText.WorkbookCreated(result.CrossingType, result.DayCount, result.RatCount),
+                result.Warning);
         }
         catch (Exception exception)
         {
@@ -158,6 +160,10 @@ public partial class MainWindow : Window
             var analysis = GraphAnalysisBuilder.Build(_selectedFiles);
             var graphWindow = new GraphWindow(analysis);
             graphWindow.Show(this);
+            if (analysis.Warning is not null)
+            {
+                StatusText.Text = analysis.Warning;
+            }
         }
         catch (Exception exception)
         {
@@ -171,10 +177,29 @@ public partial class MainWindow : Window
         FilesListBox.SelectedIndex = selectedIndex;
         var readyCount = _selectedFiles.Count(file => file.IsReady);
         var errorCount = _selectedFiles.Count - readyCount;
-        StatusText.Text = _selectedFiles.Count == 0
+        var status = _selectedFiles.Count == 0
             ? AppText.NoFilesSelected
             : AppText.PreparedFilesSummary(readyCount, errorCount);
+        StatusText.Text = AppText.WithWarning(status, GetDiscriminationDayWarning());
         UpdateButtons();
+    }
+
+    private string? GetDiscriminationDayWarning()
+    {
+        if (_selectedFiles.Count == 0 || _selectedFiles.Any(file => !file.IsReady) ||
+            _selectedFiles.Any(file => !SessionFileName.TryParse(file.Path, out _)))
+        {
+            return null;
+        }
+
+        try
+        {
+            return LatencyReviewSetBuilder.Build(_selectedFiles).Warning;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private void UpdateButtons()

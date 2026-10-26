@@ -4,12 +4,11 @@ using MathNet.Numerics.LinearAlgebra;
 
 internal sealed record LatencyReviewSet(
     IReadOnlyList<RatLatencyReview> Reviews,
-    CrossingType CrossingType);
+    CrossingType CrossingType,
+    string? Warning = null);
 
 internal static class LatencyReviewSetBuilder
 {
-    private const decimal DiscriminationTestDay = 10m;
-
     public static LatencyReviewSet Build(IReadOnlyCollection<PreparedMatFile> files)
     {
         var initialReviews = files
@@ -48,14 +47,20 @@ internal static class LatencyReviewSetBuilder
             return new LatencyReviewSet(initialReviews, crossingType);
         }
 
+        var uploadedDays = initialReviews
+            .Select(review => review.Identifier.Day)
+            .Distinct()
+            .ToList();
+        var finalDay = uploadedDays.Max();
         var reviews = initialReviews
             .Select(review => LatencyReviewBuilder.Build(
                 review.Source,
-                applyDiscriminationFinalDayLimit: review.Identifier.Day == DiscriminationTestDay,
-                completeDangerBlocks: review.Identifier.Day != DiscriminationTestDay))
+                applyDiscriminationFinalDayLimit: review.Identifier.Day == finalDay,
+                completeDangerBlocks: review.Identifier.Day != finalDay))
             .ToList();
 
-        return new LatencyReviewSet(reviews, crossingType);
+        var warning = uploadedDays.Count == 1 ? AppText.SingleDiscriminationDayWarning : null;
+        return new LatencyReviewSet(reviews, crossingType, warning);
     }
 
     private static PreparedMatFile TrimDangerCrossingTrials(PreparedMatFile source, decimal day)

@@ -149,7 +149,7 @@ public sealed class ReviewExcelWriterTests
             {
                 CreateFile("exp_0526_dis_d1r1.mat", (0, 1d), (1, 10d)),
                 CreateFile(
-                    "exp_0526_dis_d10r1.mat",
+                    "exp_0526_dis_d2r1.mat",
                     (0, 1d), (0, 2d), (0, 3d), (0, 4d), (0, 5d), (0, 6d), (0, 7d),
                     (1, 101d), (1, 102d), (1, 103d),
                     (0, 999d), (1, 999d))
@@ -158,7 +158,7 @@ public sealed class ReviewExcelWriterTests
             var result = ReviewExcelWriter.Write(outputPath, files);
 
             using var workbook = new XLWorkbook(outputPath);
-            var finalDay = workbook.Worksheet("d10");
+            var finalDay = workbook.Worksheet("d2");
             Assert.Equal(CrossingType.Discrimination, result.CrossingType);
             Assert.Equal(3d, finalDay.Cell("I5").GetDouble());
             Assert.Equal(2d, finalDay.Cell("I6").GetDouble());

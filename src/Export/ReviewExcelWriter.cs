@@ -2,7 +2,7 @@ using ClosedXML.Excel;
 
 namespace AutoValentia;
 
-internal sealed record ReviewExcelResult(int DayCount, int RatCount, CrossingType CrossingType);
+internal sealed record ReviewExcelResult(int DayCount, int RatCount, CrossingType CrossingType, string? Warning = null);
 
 internal static class ReviewExcelWriter
 {
@@ -29,7 +29,8 @@ internal static class ReviewExcelWriter
         return new ReviewExcelResult(
             reviews.Select(review => review.Identifier.Day).Distinct().Count(),
             reviews.Count,
-            crossingType);
+            crossingType,
+            reviewSet.Warning);
     }
 
     private static void WriteSummary(
