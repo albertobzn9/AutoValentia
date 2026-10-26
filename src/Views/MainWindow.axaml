@@ -9,16 +9,18 @@
         MinHeight="540"
         WindowStartupLocation="CenterScreen">
   <Grid Margin="28" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="18">
-    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
-      <Button x:Name="LanguageToggleButton"
-              Padding="12,7"
-              VerticalAlignment="Top"
-              Click="LanguageToggleButton_Click" />
-      <StackPanel Grid.Column="1" Spacing="5">
+    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+      <StackPanel Spacing="5">
         <TextBlock FontSize="30" FontWeight="SemiBold" Text="AutoValentia" />
         <TextBlock x:Name="SubtitleText"
                    Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
       </StackPanel>
+      <ToggleSwitch x:Name="LanguageToggleSwitch"
+                    Grid.Column="1"
+                    OffContent="English"
+                    OnContent="Español"
+                    VerticalAlignment="Top"
+                    IsCheckedChanged="LanguageToggleSwitch_IsCheckedChanged" />
     </Grid>
 
     <Border Grid.Row="1"

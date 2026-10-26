@@ -14,8 +14,6 @@ internal static class AppText
 
     private static bool IsSpanish => CurrentLanguage == AppLanguage.Spanish;
 
-    public static string LanguageToggleLabel => IsSpanish ? "English" : "Español";
-
     public static string MainSubtitle => IsSpanish
         ? "Preparación y revisión de ensayos conductuales."
         : "Behavioral trial preparation and review.";
@@ -128,9 +126,14 @@ internal static class AppText
     public static string AverageLabel => IsSpanish ? "promedio" : "average";
     public static string SemLabel => "sem";
 
-    public static void ToggleLanguage()
+    public static void SetLanguage(AppLanguage language)
     {
-        CurrentLanguage = IsSpanish ? AppLanguage.English : AppLanguage.Spanish;
+        if (CurrentLanguage == language)
+        {
+            return;
+        }
+
+        CurrentLanguage = language;
         LanguageChanged?.Invoke();
     }
 }

@@ -17,11 +17,12 @@ public partial class MainWindow : Window
         UpdateButtons();
     }
 
-    private void LanguageToggleButton_Click(object? sender, RoutedEventArgs eventArgs) => AppText.ToggleLanguage();
+    private void LanguageToggleSwitch_IsCheckedChanged(object? sender, RoutedEventArgs eventArgs) =>
+        AppText.SetLanguage(LanguageToggleSwitch.IsChecked == true ? AppLanguage.Spanish : AppLanguage.English);
 
     private void ApplyLocalizedText()
     {
-        LanguageToggleButton.Content = AppText.LanguageToggleLabel;
+        LanguageToggleSwitch.IsChecked = AppText.CurrentLanguage == AppLanguage.Spanish;
         SubtitleText.Text = AppText.MainSubtitle;
         SelectFilesHeadingText.Text = AppText.SelectFilesHeading;
         SelectFilesDescriptionText.Text = AppText.SelectFilesDescription;
