@@ -1,10 +1,10 @@
 # AutoValentia
 
+[English](README.md) | [Español](README.es.md)
+
 <img src="src/Assets/autovalentia-logo.png" alt="Logotipo de AutoValentia" width="96" />
 
 AutoValentia es una aplicación de escritorio multiplataforma para revisar y analizar datos conductuales de la tarea Crossing-Mediated Conflict. Lee archivos MATLAB `.mat`, prepara datos de latencia por bloque de ensayos, exporta libros de revisión y crea gráficas de latencia.
-
-[English](README.md) | [Español](README.es.md)
 
 ## Funciones
 
