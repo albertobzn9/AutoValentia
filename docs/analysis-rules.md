@@ -136,14 +136,14 @@ two decimals and plot SEM values to three decimals after calculation.
 
 The implementation is separated by responsibility:
 
-- [MAT reader](../src/Data/MatFileReader.cs) validates and normalizes 8- and 9-column matrices.
-- [Latency review builder](../src/Analysis/LatencyReview.cs) filters eligible trials, splits
+- [MAT reader](../src/AutoValentia/Data/MatFileReader.cs) validates and normalizes 8- and 9-column matrices.
+- [Latency review builder](../src/AutoValentia/Analysis/LatencyReview.cs) filters eligible trials, splits
   blocks, and completes missing conflict blocks.
-- [Review-set builder](../src/Analysis/LatencyReviewSet.cs) detects the protocol, limits the
+- [Review-set builder](../src/AutoValentia/Analysis/LatencyReviewSet.cs) detects the protocol, limits the
   final discrimination day, and filters conflict outliers.
-- [Graph builder](../src/Analysis/GraphAnalysis.cs) produces daily means and SEM.
-- [Excel writer](../src/Export/ReviewExcelWriter.cs) writes the review workbook.
+- [Graph builder](../src/AutoValentia/Analysis/GraphAnalysis.cs) produces daily means and SEM.
+- [Excel writer](../src/AutoValentia/Export/ReviewExcelWriter.cs) writes the review workbook.
 
-The regression tests in [`test/Analysis`](../test/Analysis) and
-[`test/Export`](../test/Export) verify the rules above. Any processing-rule change should update
+The regression tests in [`tests/AutoValentia.Tests/Analysis`](../tests/AutoValentia.Tests/Analysis) and
+[`tests/AutoValentia.Tests/Export`](../tests/AutoValentia.Tests/Export) verify the rules above. Any processing-rule change should update
 this document and the relevant test in the same change.

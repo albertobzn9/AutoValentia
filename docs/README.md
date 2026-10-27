@@ -10,9 +10,9 @@ the relevant automated tests whenever a rule changes.
 
 ## Code map
 
-- `src/Data/MatFileReader.cs` reads and normalizes MATLAB matrices.
-- `src/Analysis/LatencyReview.cs` selects trials and builds per-rat blocks.
-- `src/Analysis/LatencyReviewSet.cs` applies protocol-level rules.
-- `src/Analysis/GraphAnalysis.cs` calculates daily means and SEM for plots.
-- `src/Export/ReviewExcelWriter.cs` writes the review workbook.
-- `test/Analysis` and `test/Export` contain executable examples of the rules.
+- `src/AutoValentia/Data/MatFileReader.cs` reads and normalizes MATLAB matrices.
+- `src/AutoValentia/Analysis/LatencyReview.cs` selects trials and builds per-rat blocks.
+- `src/AutoValentia/Analysis/LatencyReviewSet.cs` applies protocol-level rules.
+- `src/AutoValentia/Analysis/GraphAnalysis.cs` calculates daily means and SEM for plots.
+- `src/AutoValentia/Export/ReviewExcelWriter.cs` writes the review workbook.
+- `tests/AutoValentia.Tests/Analysis` and `tests/AutoValentia.Tests/Export` contain executable examples of the rules.

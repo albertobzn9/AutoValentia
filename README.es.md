@@ -2,7 +2,7 @@
 
 [English](README.md) | [Español](README.es.md)
 
-<img src="src/Assets/autovalentia-logo.png" alt="Logotipo de AutoValentia" width="96" />
+<img src="src/AutoValentia/Assets/autovalentia-logo.png" alt="Logotipo de AutoValentia" width="96" />
 
 AutoValentia es una aplicación de escritorio multiplataforma para revisar y analizar datos conductuales de la tarea Crossing-Mediated Conflict. Lee archivos MATLAB `.mat`, prepara datos de latencia por bloque de ensayos, exporta libros de revisión y crea gráficas de latencia.
 
@@ -52,16 +52,16 @@ Consulta el [índice de documentación](docs/README.md) para ver el mapa de cód
 Requisito: SDK de .NET 10. Avalonia proporciona la interfaz de escritorio multiplataforma.
 
 ```bash
-dotnet run --project src/AutoValentia.csproj
-dotnet test test/AutoValentia.Tests.csproj
+dotnet run --project src/AutoValentia/AutoValentia.csproj
+dotnet test tests/AutoValentia.Tests/AutoValentia.Tests.csproj
 ```
 
 ## Estructura del repositorio
 
 | Ruta | Propósito |
 | --- | --- |
-| `src` | Código de la aplicación Avalonia, lógica de análisis, lector de datos, exportación y recursos. |
-| `test` | Pruebas unitarias de análisis, exportación y presentación de gráficas. |
+| `src/AutoValentia` | Código de la aplicación Avalonia, lógica de análisis, lector de datos, exportación y recursos. |
+| `tests/AutoValentia.Tests` | Pruebas unitarias de análisis, exportación y presentación de gráficas. |
 | `docs` | Reglas de procesamiento y mapa de código. |
 | `packaging/macos` | Metadatos del paquete de aplicación para macOS. |
 | `scripts` | Scripts locales para empaquetar releases. |

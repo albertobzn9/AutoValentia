@@ -2,7 +2,7 @@
 
 [English](README.md) | [Español](README.es.md)
 
-<img src="src/Assets/autovalentia-logo.png" alt="AutoValentia logo" width="96" />
+<img src="src/AutoValentia/Assets/autovalentia-logo.png" alt="AutoValentia logo" width="96" />
 
 AutoValentia is a cross-platform desktop app for reviewing and analyzing behavioral-task data from the Crossing-Mediated Conflict Task. It reads MATLAB `.mat` files, prepares latency data by trial block, exports review workbooks, and creates latency plots.
 
@@ -52,16 +52,16 @@ See the [documentation index](docs/README.md) for the code map and documentation
 Requirements: the .NET 10 SDK. Avalonia provides the cross-platform desktop interface.
 
 ```bash
-dotnet run --project src/AutoValentia.csproj
-dotnet test test/AutoValentia.Tests.csproj
+dotnet run --project src/AutoValentia/AutoValentia.csproj
+dotnet test tests/AutoValentia.Tests/AutoValentia.Tests.csproj
 ```
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| `src` | Avalonia application source, analysis logic, data reader, export code, and assets. |
-| `test` | Unit tests for analysis, exports, and plot presentation. |
+| `src/AutoValentia` | Avalonia application source, analysis logic, data reader, export code, and assets. |
+| `tests/AutoValentia.Tests` | Unit tests for analysis, exports, and plot presentation. |
 | `docs` | Processing rules and code map. |
 | `packaging/macos` | macOS application bundle metadata. |
 | `scripts` | Local release-packaging scripts. |
