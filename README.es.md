@@ -76,6 +76,10 @@ En macOS, ejecuta lo siguiente desde la raíz del repositorio usando un número 
 
 El script genera un DMG y ZIP para macOS Apple Silicon, además de un EXE y ZIP autocontenidos para Windows x64, dentro de `artifacts/release/`.
 
+## Reconocimiento
+
+AutoValentia se originó a partir del proyecto en Python [AutomatizacionCajaValentia](https://github.com/ericramirezz/AutomatizacionCajaValentia) de Eric Ramírez. Este repositorio es una reescritura independiente en .NET/Avalonia que conserva y amplía el flujo de análisis de datos conductuales.
+
 ## Referencia metodológica
 
 Illescas-Huerta, E., Ramirez-Lugo, L., Sierra, R. O., Quillfeldt, J. A., & Sotres-Bayon, F. (2021). *Conflict Test Battery for Studying the Act of Facing Threats in Pursuit of Rewards.* Frontiers in Neuroscience, 15, 645769. [https://doi.org/10.3389/fnins.2021.645769](https://doi.org/10.3389/fnins.2021.645769)
