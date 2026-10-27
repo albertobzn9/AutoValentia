@@ -25,11 +25,12 @@ This identifies day 3 and rat 4. The MATLAB file must contain a numeric matrix n
 
 ## Analysis rules
 
-Only valid crossings are included in the latency analysis. The app applies the following protocol rules:
+The complete processing specification is available in [the analysis rules](docs/analysis-rules.md).
+It defines matrix normalization, trial eligibility, protocol-specific filtering, chronological
+blocks, missing-data handling, averages, and SEM.
 
-- For discrimination, the final day uses the first 7 no-conflict crossings and the first 3 conflict crossings.
-- For conflict crossings, latency outliers are removed above the daily protocol limit: 45 s on days 1–2, 75 s on day 3, 105 s on day 4, and 135 s on day 5.
-- Excel and plot outputs use the same filtered data.
+See the [documentation index](docs/README.md) for the code map and documentation maintenance
+guidance.
 
 ## Use the app
 
