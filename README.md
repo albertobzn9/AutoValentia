@@ -1,10 +1,10 @@
 # AutoValentia
 
+[English](README.md) | [Español](README.es.md)
+
 <img src="src/Assets/autovalentia-logo.png" alt="AutoValentia logo" width="96" />
 
 AutoValentia is a cross-platform desktop app for reviewing and analyzing behavioral-task data from the Crossing-Mediated Conflict Task. It reads MATLAB `.mat` files, prepares latency data by trial block, exports review workbooks, and creates latency plots.
-
-[English](README.md) | [Español](README.es.md)
 
 ## Features
 
